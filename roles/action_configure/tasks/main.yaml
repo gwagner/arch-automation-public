@@ -8,6 +8,7 @@
 
 # other packages used by the user: gwagner
 - include: user_gwagner_automation.yaml
+- include: user_gwagner_arch_automation.yaml
 - include: user_gwagner_communication.yaml
 - include: user_gwagner_steam.yaml
 - include: user_gwagner_video.yaml

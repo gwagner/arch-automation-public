@@ -1,0 +1,8 @@
+---
+- name: Checkout gwagner dotfiles
+  ansible.builtin.git:
+    repo: https://github.com/gwagner/arch-automation.git
+    dest: /home/gwagner/code/github.com/gwagner/arch-automation
+    force: yes
+  become: yes
+  become_user: gwagner
