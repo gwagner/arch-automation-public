@@ -36,6 +36,7 @@
       - nfs-utils
       - numlockx
       - polybar-dwm-module
+      - pulseaudio
       - qemu-headless
       - ranger
       - solaar
