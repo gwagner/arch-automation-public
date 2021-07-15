@@ -1,0 +1,56 @@
+---
+- name: Is ZFS already installed on the system
+  command: which zpool
+  register: zpool_exists
+  ignore_errors: true
+
+- name: Setup the arch-keyring
+  community.general.pacman:
+    name: archlinux-keyring
+    state: installed
+    update_cache: yes
+  when: zpool_exists.failed
+
+- name: Add ZFS repository GPG keys
+  command: "{{ item }}"
+  with_items:
+    - pacman -Sy --noconfirm
+    - pacman-key --init
+    - sleep 5
+    - pacman-key --populate archlinux
+    - pacman-key --recv-keys F75D9D76 --keyserver keyserver.ubuntu.com 
+    - pacman-key --lsign-key F75D9D76
+  when: zpool_exists.failed
+  retries: 5 
+
+- name: Add ZFS repository to pacman
+  lineinfile:
+    path: /etc/pacman.conf
+    insertbefore: EOF
+    line: '{{ item }}'
+  with_items:
+    - '[archzfs]'
+    - 'Server = http://archzfs.com/$repo/$arch'
+    - 'Server = http://mirror.sum7.eu/archlinux/archzfs/$repo/$arch'
+    - 'Server = https://mirror.biocrafting.net/archlinux/archzfs/$repo/$arch'
+  when: zpool_exists.failed
+
+- name: Update pacman repos with ZFS repo database
+  command: "pacman -Sy"
+  when: zpool_exists.failed
+
+- name: Install the zfs-dkms package on archiso
+  community.general.pacman:
+    name: zfs-dkms 
+    state: present
+  when: zpool_exists.failed
+
+- name: Install the  zfs-utils package on archiso
+  community.general.pacman:
+    name: zfs-utils 
+    state: present
+  when: zpool_exists.failed
+
+- name: Load the zfs kernel module
+  command: modprobe zfs
+  when: zpool_exists.failed

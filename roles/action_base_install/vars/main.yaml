@@ -1,0 +1,5 @@
+---
+zpool_name: zroot
+zpool_exists: false
+skip_finalize: false
+uefi: true

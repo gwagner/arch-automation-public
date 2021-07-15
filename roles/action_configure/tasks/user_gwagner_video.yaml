@@ -1,0 +1,15 @@
+---
+- name: Install apps for vidcap
+  aur: 
+    use: yay
+    name: 
+      - v4l2loopback-dkms-git
+      - obs-studio
+      - luajit
+      - sndio
+      - nvidia-utils
+      - pavucontrol
+      - pulseaudio
+      - libva-mesa-driver
+  become: yes
+  become_user: aur_builder

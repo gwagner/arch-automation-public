@@ -1,0 +1,50 @@
+---
+
+- name: Create the zpool
+  command: |
+    zpool create -f -o ashift=9         \
+             -O acltype=posixacl       \
+             -O relatime=on            \
+             -O xattr=sa               \
+             -O dnodesize=legacy       \
+             -O normalization=formD    \
+             -O mountpoint=none        \
+             -O canmount=off           \
+             -O devices=off            \
+             -R /mnt                   \
+             -O compression=lz4        \
+             zroot mirror \
+             {{ zfs_disk_ids | join(' ') }}
+
+- name: Create all of the default data sets to install arch
+  command: "{{ item }}"
+  loop:
+    - zfs create -o mountpoint=none zroot/data
+    - zfs create -o mountpoint=none zroot/ROOT
+    - zfs create -o mountpoint=/ -o canmount=noauto zroot/ROOT/default
+    - zfs create -o mountpoint=/home zroot/data/home
+    - zfs create -o mountpoint=/var zroot/data/var
+
+- name: Check the fs backups
+  command: "{{ item }}"
+  loop:
+    - zpool export zroot
+    - zpool import -R /mnt zroot -N
+    - zfs mount zroot/ROOT/default
+    - zfs mount -a
+
+- name: Check the fs backups
+  command: zpool set bootfs=zroot/ROOT/default zroot
+
+- name: Create and Copy the zpool cache
+  command: zpool set cachefile=/etc/zfs/zpool.cache zroot
+
+- name: Create /mnt/boot directory
+  ansible.builtin.file:
+    path: /mnt/boot
+    state: directory
+    recurse: True
+
+- name: Mount /mnt/boot
+  command: "mount {{boot_partitions[0]}} /mnt/boot"
+

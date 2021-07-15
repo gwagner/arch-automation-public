@@ -1,0 +1,35 @@
+- name: zfsnap snapshot zroot/data/home
+  ansible.builtin.cron:
+    name: "zfsnap zroot/data/home"
+    minute: "0"
+    hour: "*/4"
+    job: "zfsnap snapshot -rv -a -S 6w zroot/data/home"
+
+- name: zfsnap destroy zroot/data/home
+  ansible.builtin.cron:
+    name: "zfsnap destroy zroot/data/home"
+    minute: "0"
+    hour: "0"
+    job: "zfsnap destroy -rv zfsnap destroy zroot/data/home"
+
+- name: zfsnap snapshot zroot/ROOT/default
+  ansible.builtin.cron:
+    name: "zfsnap zroot/ROOT/default"
+    minute: "15"
+    hour: "*/4"
+    job: "zfsnap snapshot -rv -a -S 6w zroot/ROOT/default"
+
+- name: zfsnap destroy zroot/ROOT/default
+  ansible.builtin.cron:
+    name: "zfsnap destroy zroot/ROOT/default"
+    minute: "0"
+    hour: "0"
+    job: "zfsnap destroy -rv zfsnap destroy zroot/ROOT/default"
+
+- name: zpool scrub zroot
+  ansible.builtin.cron:
+    name: "zpool scrub zroot"
+    minute: "0"
+    hour: "0"
+    day: "1,15"
+    job: "zpool scrub zroot"

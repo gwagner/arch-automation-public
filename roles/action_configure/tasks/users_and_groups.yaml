@@ -1,0 +1,85 @@
+---
+
+- name: Create Groups
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - libvirt
+    - kvm
+    - plugdev
+
+- name: "Allow %wheel to sudo to root"
+  lineinfile:
+    path: /etc/sudoers.d/00-wheel
+    line: '%wheel    ALL=(ALL) ALL'
+    create: yes
+    validate: 'visudo -cf %s'
+
+- user:
+    name: aur_builder
+    create_home: yes
+    group: wheel
+
+- name: "Allow aur building to sudo without password"
+  lineinfile:
+    path: /etc/sudoers.d/11-install-aur_builder
+    line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+    create: yes
+    validate: 'visudo -cf %s'
+
+# pip install passlib && python -c "from passlib.hash import sha512_crypt; import getpass; print(sha512_crypt.using(rounds=5000).hash(getpass.getpass()))"
+- name: Create gwagner, set password, set shell, and associate groups
+  user:
+    name: gwagner
+    create_home: yes
+    shell: /bin/zsh
+    password: "{{ gwagner_user_password }}"
+    groups: 
+      - wheel
+      - libvirt
+      - kvm
+      - plugdev
+
+- name: Create gwagner ~/.ssh/ folder
+  ansible.builtin.file:
+    path: /home/gwagner/.ssh
+    state: directory
+    recurse: yes
+    owner: gwagner
+    group: gwagner
+
+- name: Create gwagner ~/.ssh/known_hosts file
+  file: 
+    path: "/home/gwagner/.ssh/known_hosts"
+    state: touch
+    owner: gwagner
+    group: gwagner
+
+- name: Add github rsa key to known hosts for gwagner
+  lineinfile:
+    path: /home/gwagner/.ssh/known_hosts
+    insertafter: 'BOF'
+    line: '{{ item }}'
+  with_items:
+    - 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
+  become: yes
+  become_user: gwagner
+
+- name: Set root password
+  user:
+    name: root
+    password: "{{ root_user_password }}"
+
+- name: "Allow gwagner to sudo without password"
+  lineinfile:
+    path: /etc/sudoers.d/99-gwagner
+    line: 'gwagner ALL=(ALL) NOPASSWD: ALL'
+    create: yes
+    validate: 'visudo -cf %s'
+
+- name: Run notifiers
+  command: echo 1
+  notify:
+    - Remove aur_builder from NOPASSWD sudo
+    - Remove gwagner from NOPASSWD sudo

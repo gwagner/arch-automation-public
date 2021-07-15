@@ -1,0 +1,5 @@
+---
+- name: Set the hostname
+  copy:
+      dest: "/mnt/etc/hostname"
+      content: "{{ inventory_hostname }}"

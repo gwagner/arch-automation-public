@@ -1,0 +1,17 @@
+---
+- name: Install the efibootmgr package
+  command: "arch-chroot /mnt/ pacman --noconfirm -Sy efibootmgr"
+
+- name: Install the UEFI bootloader (bootctl)
+  command: arch-chroot /mnt/ bootctl install --esp-path=/boot/
+
+- name: Create /mnt/boot/loader/entries/ directory
+  ansible.builtin.file:
+    path: /mnt/boot/loader/entries/
+    state: directory
+    recurse: True
+
+- name: Copy archlinux bootloader config file
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/archlinux.conf"
+    dest: /mnt/boot/loader/entries/archlinux.conf

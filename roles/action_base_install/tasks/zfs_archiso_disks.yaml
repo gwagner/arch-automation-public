@@ -1,0 +1,6 @@
+---
+- include: zfs_archiso_disks/uefi.yaml
+  when: uefi
+
+- include: zfs_archiso_disks/bios.yaml
+  when: not uefi

@@ -1,0 +1,7 @@
+---
+- include: bootloader/uefi.yaml
+  when: uefi
+
+- include: bootloader/bios.yaml
+  when: not uefi
+

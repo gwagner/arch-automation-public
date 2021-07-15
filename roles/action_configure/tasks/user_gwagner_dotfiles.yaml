@@ -1,0 +1,99 @@
+---
+- name: Create dotfiles code repo file
+  ansible.builtin.file:
+    path: /home/gwagner/code/github.com/gwagner/dotfiles
+    state: directory
+    recurse: yes
+    owner: gwagner
+    group: gwagner
+
+- name: Checkout gwagner dotfiles
+  ansible.builtin.git:
+    repo: https://github.com/gwagner/dotfiles.git
+    dest: /home/gwagner/code/github.com/gwagner/dotfiles
+    force: yes
+  become: yes
+  become_user: gwagner
+
+- name: Remove .bashrc file
+  ansible.builtin.file:
+    path: /home/gwagner/.bashrc
+    state: absent
+
+- name: Create gwagner ~/.local/share/ folder
+  ansible.builtin.file:
+    path: /home/gwagner/.local/share/
+    state: directory
+    recurse: yes
+    owner: gwagner
+    group: gwagner
+
+- name: Download oh-my-zsh
+  get_url:
+    url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/oh-my-zsh-install.sh
+    mode: '0740'
+  become: yes
+  become_user: gwagner
+
+
+- name: Install oh-my-zsh
+  ansible.builtin.command: /bin/bash /tmp/oh-my-zsh-install.sh
+  args:
+    creates: /home/gwagner/.oh-my-zsh/oh-my-zsh.sh
+  become: yes
+  become_user: gwagner
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/bin
+
+- name: Remove .zshrc file
+  ansible.builtin.file:
+    path: /home/gwagner/.zshrc
+    state: absent
+
+# Set this up because dotfiles expects to be able to create a symlink to a priviliged path.  
+# @todo: I should probably move this since there is no real reason to ahve this in /bin
+- name: Manually setup a link /bin/dwm-startup -> /home/gwagner/code/github.com/gwagner/dotfiles/bin/dwm-startup
+  ansible.builtin.file:
+    src: /home/gwagner/code/github.com/gwagner/dotfiles/bin/dwm-startup
+    dest: /bin/dwm-startup
+    owner: gwagner
+    group: gwagner
+    state: link
+
+- name: Manually setup a link /home/gwagner/code/github.com/gwagner/dotfiles/etc/modules-load.d/v4l2loopback.conf -> /etc/modules-load.d/v4l2loopback.conf
+  ansible.builtin.file:
+    src: /home/gwagner/code/github.com/gwagner/dotfiles/modules-load.d/v4l2loopback.conf
+    dest: /etc/modules-load.d/v4l2loopback.conf
+    owner: root
+    group: root
+    state: link
+
+- name: Manually setup a link /home/gwagner/code/github.com/gwagner/dotfiles/etc/modprobe.d/v4l2loopback.conf -> /etc/modprobe.d/v4l2loopback.conf
+  ansible.builtin.file:
+    src: /home/gwagner/code/github.com/gwagner/dotfiles/modprobe.d/v4l2loopback.conf
+    dest: /etc/modprobe.d/v4l2loopback.conf
+    owner: root
+    group: root
+    state: link
+
+- name: Manually setup a link /home/gwagner/code/github.com/gwagner/dotfiles/etc/pulse/default.pa -> /etc/pulse/default.pa
+  ansible.builtin.file:
+    src: /home/gwagner/code/github.com/gwagner/dotfiles/etc/pulse/default.pa
+    dest: /etc/pulse/default.pa
+    owner: root
+    group: root
+    state: link
+    force: true
+
+- name: Install gwagner dotfiles
+  ansible.builtin.command: /bin/bash /home/gwagner/code/github.com/gwagner/dotfiles/install
+  become: yes
+  become_user: gwagner
+
+- name: Manually setup perms for /home/gwagner/.config/polybar-scripts/polybar-scripts/updates-pacman/updates-pacman.sh
+  ansible.builtin.file:
+    path: /home/gwagner/.config/polybar-scripts/polybar-scripts/updates-pacman/updates-pacman.sh
+    owner: gwagner
+    group: gwagner
+    mode: '0766'

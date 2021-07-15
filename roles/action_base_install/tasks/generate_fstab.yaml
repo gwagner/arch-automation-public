@@ -1,0 +1,10 @@
+---
+
+- name: Generate fstab
+  ansible.builtin.script: files/generate_fstab.sh
+
+- name: "Remove additional zroot entries from /etc/fstab"
+  ansible.builtin.replace:
+    path: /mnt/etc/fstab
+    regexp: '^(zroot[^\n\r]+)$'
+    replace: '# \1'

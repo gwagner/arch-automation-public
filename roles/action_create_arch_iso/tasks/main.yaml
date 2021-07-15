@@ -1,0 +1,225 @@
+---
+- name: Does an ISO exist?
+  ansible.builtin.stat:
+    path: /tmp/archlinux.iso
+  register: iso_exists
+  delegate_to: localhost
+  become: yes
+
+- name: Run "pacman -Sy" to update the host Arch system
+  community.general.pacman:
+    update_cache: yes
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Install the archiso package
+  ansible.builtin.package:
+    name: archiso
+    state: installed
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Delete old archlive profiles
+  ansible.builtin.file:
+    path: /tmp/archlive/
+    state: absent
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Delete last built iso
+  ansible.builtin.file:
+    path: /tmp/archlinux.iso
+    state: absent
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Copy profiles
+  command: cp -r /usr/share/archiso/configs/releng/ /tmp/archlive
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Create target for sshd startup
+  ansible.builtin.file:
+    path: /tmp/archlive/archlive/airootfs/etc/systemd/system/multi-user.target.wants
+    state: directory
+    recurse: True
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Create symlink for the sshd service
+  ansible.builtin.file:
+    path: /tmp/archlive/archlive/airootfs/etc/systemd/system/multi-user.target.wants/sshd.service
+    src: /usr/lib/systemd/system/sshd.service
+    state: link
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Create .ssh dir for the root user
+  ansible.builtin.file:
+    path: /tmp/archlive/airootfs/root/.ssh
+    state: directory
+    recurse: True
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Add the hosts pub key to the authorized_keys folder for root
+  ansible.builtin.copy:
+    src: ~/.ssh/id_rsa.pub
+    dest: /tmp/archlive/airootfs/root/.ssh/authorized_keys
+    remote_src: no
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Proper file permissions in profile
+  lineinfile:
+    path: /tmp/archlive/profiledef.sh
+    insertafter: '^\s\s\["/usr/local/bin/livecd-sound"\]="0:0:755"'
+    line: '{{ item }}'
+  with_items:
+    - '  ["/root"]="0:0:0750"'
+    - '  ["/root/.ssh"]="0:0:0700"'
+    - '  ["/root/.ssh/authorized_keys"]="0:0:0600"'
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+# This section is used to setup for ZFS as part of the ISO image.  If this is not set, community supported 
+# ZFS install on the livecd kernel will not work for initial ZFS setup
+
+- name: "[ZFS] Add the linux-lts kernel to the build"
+  lineinfile:
+    path: /tmp/archlive/packages.x86_64 
+    insertafter: '^linux$'
+    line: '{{ item }}'
+  with_items:
+    - "linux-lts"
+    - "linux-lts-headers"
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Remove the linux package"
+  lineinfile:
+    path: /tmp/archlive/packages.x86_64 
+    regexp: '^linux$'
+    state: absent
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Add the configs to boot an LTS kernel"
+  ansible.builtin.copy:
+    src: linux-lts.preset
+    dest: /tmp/archlive/airootfs/etc/mkinitcpio.d/linux-lts.preset
+    remote_src: no
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Delete the linux.preset file"
+  ansible.builtin.file:
+    path: /tmp/archlive/airootfs/etc/mkinitcpio.d/linux.preset
+    state: absent
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Add the linux-lts kernel bootable options 1/2 {EFI}"
+  lineinfile:
+    path: /tmp/archlive/efiboot/loader/entries/01-archiso-x86_64-linux.conf
+    insertafter: '^linux'
+    line: '{{ item }}'
+  with_items:
+    - "linux   /%INSTALL_DIR%/boot/x86_64/vmlinuz-linux-lts"
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Add the linux-lts kernel bootable options 2/2 {EFI}"
+  lineinfile:
+    path: /tmp/archlive/efiboot/loader/entries/01-archiso-x86_64-linux.conf
+    insertafter: 'amd-ucode.img$'
+    line: '{{ item }}'
+  with_items:
+    - "initrd  /%INSTALL_DIR%/boot/x86_64/initramfs-linux-lts.img"
+    - "options cow_spacesize=1G"
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Remove the linux package {EFI}"
+  lineinfile:
+    path: /tmp/archlive/efiboot/loader/entries/01-archiso-x86_64-linux.conf 
+    regexp: '{{ item }}'
+    state: absent
+  with_items:
+    - '^linux.*vmlinuz-linux$'
+    - '^initrd.*initramfs-linux\.img$'
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Remove additional boot options {SYSLINUX}"
+  replace:
+    path: /tmp/archlive/syslinux/archiso_sys-linux.cfg
+    after: '# Accessibility boot option'
+    regexp: '^(.+)$'
+    replace: '# \1'
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Add the linux-lts kernel bootable options {SYSLINUX}"
+  lineinfile:
+    path: /tmp/archlive/syslinux/archiso_sys-linux.cfg
+    insertafter: '^LINUX'
+    line: '{{ item }}'
+  with_items:
+    - "LINUX /%INSTALL_DIR%/boot/x86_64/vmlinuz-linux-lts"
+    - "INITRD /%INSTALL_DIR%/boot/intel-ucode.img,/%INSTALL_DIR%/boot/amd-ucode.img,/%INSTALL_DIR%/boot/x86_64/initramfs-linux-lts.img cow_spacesize=1G"
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: "[ZFS] Remove the linux package {SYSLINUX}"
+  lineinfile:
+    path: /tmp/archlive/syslinux/archiso_sys-linux.cfg
+    regexp: '{{ item }}'
+    state: absent
+  with_items:
+    - '^LINUX.*vmlinuz-linux$'
+    - '^INITRD.*initramfs-linux.img$'
+  delegate_to: localhost
+  become: no
+  when: "not iso_exists.stat.exists or create_image"
+  
+# End ZFS
+
+- name: Make the Arch ISO for installation
+  raw: mkarchiso -w /tmp/archlive -o /tmp /tmp/archlive
+  register: iso_create
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Get timestamp from the system [Gather Facts is disabled]
+  shell: "date +%Y.%m.%d"
+  delegate_to: localhost
+  become: no
+  register: tstamp
+  when: "not iso_exists.stat.exists or create_image"
+
+- name: Move ISO to a common location
+  command: "mv /tmp/archlinux-{{ tstamp.stdout }}-x86_64.iso /tmp/archlinux.iso"
+  delegate_to: localhost
+  become: yes
+  when: "not iso_exists.stat.exists or create_image"

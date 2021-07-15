@@ -1,0 +1,12 @@
+---
+- name: Install Grub [Archiso] via pacman
+  command: pacman -S grub --noconfirm
+
+- name: Install Grub via pacman
+  command: arch-chroot /mnt/ pacman -S grub --noconfirm
+
+- name: grub-install
+  command: grub-install --target=i386-pc --boot-directory=/mnt/boot {{ zfs_disks[0] }}
+
+- name: Make Grub Configs
+  command: arch-chroot /mnt/ /bin/bash -c "ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg"

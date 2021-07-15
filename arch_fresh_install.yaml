@@ -1,0 +1,32 @@
+---
+# Local path for creating an ISO and testing
+- name: Arch Validation Setup
+  hosts: all
+  gather_facts: false
+  pre_tasks:
+    - include: vault/include_vars.yaml
+  roles:
+    - role: action_create_arch_iso
+      when: validation == True
+
+    - role: action_create_vmware_test_vm
+      when: validation == True and virtualization_type == "vmware" and recreate == True
+      
+    - role: action_create_qemu_test_vm
+      when: validation == True  and virtualization_type == "qemu" and recreate == True
+
+# Archiso install from bare metal to VM
+- name: Arch Install
+  hosts: all
+  pre_tasks:
+    - include: vault/include_vars.yaml
+  roles:  
+    - role: action_base_install
+
+# Configure installation of Arch Linux after bare-metal install and/or incremental updates
+- name: Arch Configure
+  hosts: all
+  pre_tasks:
+    - include: vault/include_vars.yaml
+  roles:  
+    - role: action_configure

@@ -1,0 +1,11 @@
+---
+- name: Install packages supporting automation
+  aur: 
+    use: yay
+    name: 
+      # All used for the automation to build out an automated Arch Install
+      - ansible
+      - archiso
+      - sshpass
+  become: yes
+  become_user: aur_builder

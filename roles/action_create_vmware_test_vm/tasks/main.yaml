@@ -1,0 +1,78 @@
+---
+- name: Remove arch-linux-test virtual machine from inventory
+  community.vmware.vmware_guest:
+    validate_certs: false
+    hostname: "{{ vmware_host }}"
+    username: "{{ vmware_user }}"
+    password: "{{ vmware_password }}"
+    name: arch-linux-test
+    state: absent
+    force: True
+  delegate_to: localhost
+
+- name: Get stats of local iso
+  ansible.builtin.stat:
+    path: /tmp/archlinux.iso
+    checksum_algorithm: md5
+    get_checksum: yes
+  register: local_checksum
+  delegate_to: localhost
+  become: no
+
+- name: Get hash of remote iso
+  command: ssh {{ vmware_user }}@{{ vmware_host }} "md5sum {{ vmware_iso_path }} | head -n1 | cut -d \" \" -f1"
+  register: remote_checksum
+  delegate_to: localhost
+  become: no
+
+- name: Copy image to vmware
+  command: scp /tmp/archlinux.iso {{ vmware_user }}@{{ vmware_host }}:{{ vmware_iso_path }}
+  delegate_to: localhost
+  become: no
+  when: local_checksum.stat.checksum != remote_checksum.stdout
+
+- name: Create a virtual machine on given ESXi hostname
+  community.vmware.vmware_guest:
+    validate_certs: false
+    hostname: "{{ vmware_host }}"
+    username: "{{ vmware_user }}"
+    password: "{{ vmware_password }}"
+    folder: /vm/
+    name: arch-linux-test
+    state: poweredon
+    guest_id: centos64Guest    
+    cdrom:
+    - controller_number: 0
+      unit_number: 0
+      state: present
+      type: iso
+      iso_path: "[FreeNAS-iSCSI] archlinux.iso"
+    disk:
+    - size_gb: 60
+      type: thin
+      datastore: FreeNAS-iSCSI
+    - size_gb: 60
+      type: thin
+      datastore: FreeNAS-iSCSI
+    hardware:
+      boot_firmware: efi
+      memory_mb: 16384
+      num_cpus: 16
+      num_cpu_cores_per_socket: 8
+      scsi: paravirtual
+    networks:
+    - name: Desktop
+      connect: yes
+      mac: CC:8E:53:6F:F9:19
+      ip: 192.168.2.184
+      netmask: 255.255.255.0
+      device_type: vmxnet3
+      type: static
+  delegate_to: localhost
+  register: deploy_vm
+
+- name: Wait for VM to start
+  wait_for_connection:
+    delay: 10
+    timeout: 300
+    connect_timeout: 1

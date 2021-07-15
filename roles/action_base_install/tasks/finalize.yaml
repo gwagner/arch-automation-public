@@ -1,0 +1,32 @@
+---
+- name: change root user's password
+  command: arch-chroot /mnt/ /bin/bash -c 'echo "root:{{ ansible_ssh_pass }}" | chpasswd'
+
+- name: Umount /mnt/boot
+  command: umount /mnt/boot
+
+- name: Umount ZFS
+  command: zfs umount -a
+
+- name: Zpool export
+  command: zpool export zroot
+
+- name: Reboot the machine
+  reboot:
+    reboot_timeout: 2
+  ignore_errors: yes
+
+- name: Remove existing hostkeys
+  known_hosts:
+    path: /home/{{ lookup('env', 'USER') }}/.ssh/known_hosts
+    name: "{{ansible_host}}"
+    state: absent
+  delegate_to: localhost
+  become: no
+
+- name: Wait for VM to start
+  wait_for_connection:
+    timeout: 10
+    connect_timeout: 1
+  retries: 10
+  delay: 10

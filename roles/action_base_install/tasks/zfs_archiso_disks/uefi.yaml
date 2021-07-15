@@ -1,0 +1,24 @@
+---
+- name: "[UEFI] Clear disks with wipefs"
+  command: "wipefs -fa {{ item }}"
+  loop: "{{ zfs_disks }}"
+
+- name: "[UEFI] Clear disks with sgdisk"
+  command: "sgdisk -Z {{ item }}"
+  loop: "{{ zfs_disks }}"
+
+- name: "[UEFI] Load the new partition table"
+  command: "partprobe {{ item }}"
+  loop: "{{ zfs_disks }}"
+
+- name: "[UEFI] Create Boot Partition"
+  command: "sgdisk -n 1:0:+1GiB -t 1:ef00 -c 1:boot {{ item }}"
+  loop: "{{ zfs_disks }}"
+
+- name: "[UEFI] Create Data Partition"
+  command: "sgdisk -n 2:0:0 -t 2:bf00 -c 2:root {{ item }}"
+  loop: "{{ zfs_disks }}"
+
+- name: "[UEFI] Format the Boot partition [FAT32]"
+  command: "mkfs.fat -F32 {{ item }}"
+  loop: "{{ boot_partitions }}"

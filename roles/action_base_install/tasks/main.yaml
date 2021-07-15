@@ -1,0 +1,39 @@
+---
+- name: Check the boot environment
+  script: "files/boot_type.sh"
+  register: boot_environment
+
+- name: Swith UEFI to false if we are on a BIOS system
+  set_fact:
+    uefi: false
+  when: boot_environment.stdout | trim != "UEFI"
+
+# Install the ZFS repo and kernel module
+- include: zfs_archiso_install.yaml
+
+- name: Check if zpool exists
+  command: zpool status
+  register: zpool_status
+
+- include: zfs_archiso_zpool_destroy.yaml
+  when: destructive
+  
+- include: zfs_archiso_disks.yaml
+  when: '"{{ zpool_name }}" not in zpool_status.stdout'
+
+- include: zfs_archiso_zpool_create.yaml
+  when: '"{{ zpool_name }}" not in zpool_status.stdout'
+
+- include: base_install.yaml
+- include: generate_fstab.yaml
+- include: language.yaml
+- include: timezone.yaml
+- include: hostname.yaml
+- include: zfs_install.yaml
+- include: bootloader.yaml
+- include: networking.yaml
+- include: ssh.yaml
+
+# Finalize the installation of arch
+- include: finalize.yaml
+  when: "not skip_finalize"

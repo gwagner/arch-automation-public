@@ -1,0 +1,14 @@
+---
+- name: Install apps for communication
+  aur: 
+    use: yay
+    name: 
+      - discord
+      - teams
+  become: yes
+  become_user: aur_builder
+
+- name: Install the Slack
+  community.general.flatpak:
+    name: com.slack.Slack
+    state: present

@@ -1,0 +1,21 @@
+- name: Create /mnt/etc/iwd/ directory
+  ansible.builtin.file:
+    path: /mnt/etc/iwd/
+    state: directory
+    recurse: True
+
+- name: Set the hostname
+  copy:
+      dest: "/mnt/etc/iwd/main.conf"
+      content: |
+        [General]
+        EnableNetworkConfiguration=true
+
+- name: Add networking services for boot
+  command: "arch-chroot /mnt/ {{ item }}"
+  with_items:
+    - pacman -S --noconfirm dhcpcd 
+    - systemctl enable iwd
+    - systemctl enable systemd-resolved
+    - systemctl enable systemd-networkd
+    - systemctl enable dhcpcd

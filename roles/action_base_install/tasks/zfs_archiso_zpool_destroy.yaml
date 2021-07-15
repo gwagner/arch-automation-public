@@ -1,0 +1,20 @@
+---
+
+- name: Check if /mnt/boot is mounted
+  command: grep -qs '/mnt/boot' /proc/mounts
+  register: mount_status
+  ignore_errors: yes
+
+- name: Umount /mnt/boot
+  command: "umount /mnt/boot"
+  when: mount_status.rc != 1
+
+- name: Delete /mnt/boot directory
+  ansible.builtin.file:
+    path: /mnt/boot
+    state: absent
+  when: '"{{ zpool_name }}" in zpool_status.stdout'
+
+- name: Destroy existing zpool
+  command: "zpool destroy {{ zpool_name }}"
+  when: '"{{ zpool_name }}" in zpool_status.stdout'

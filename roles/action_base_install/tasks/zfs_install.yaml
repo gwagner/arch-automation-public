@@ -1,0 +1,52 @@
+---
+- name: Is ZFS already installed on the system
+  command: "arch-chroot /mnt/ which zpool"
+  register: zpool_exists
+  ignore_errors: true
+
+- name: Add ZFS repository GPG keys
+  command: "arch-chroot /mnt/ {{ item }}"
+  with_items:
+    - pacman-key --recv-keys F75D9D76 --keyserver keyserver.ubuntu.com 
+    - pacman-key --lsign-key F75D9D76
+  when: zpool_exists.failed
+
+- name: Add ZFS repository to pacman
+  lineinfile:
+    path: /mnt/etc/pacman.conf
+    insertbefore: EOF
+    line: '{{ item }}'
+  with_items:
+    - '[archzfs]'
+    - 'Server = https://archzfs.com/$repo/$arch'
+    - 'Server = http://mirror.sum7.eu/archlinux/archzfs/$repo/$arch'
+    - 'Server = https://mirror.biocrafting.net/archlinux/archzfs/$repo/$arch'
+  when: zpool_exists.failed
+
+- name: Install the ZFS-DKMS package
+  command: "arch-chroot /mnt/ pacman --noconfirm -Sy zfs-dkms zfs-utils"
+  when: zpool_exists.failed
+
+- name: "Replace the hooks in mkinitcpio.conf with ZFS hooks"
+  lineinfile:
+    path: /mnt/etc/mkinitcpio.conf
+    regexp: '^HOOKS'
+    line: HOOKS=(base udev autodetect modconf block keyboard zfs filesystems fsck)
+
+- name: Build the LTS kernel
+  command: "arch-chroot /mnt/ mkinitcpio -p linux-lts"
+
+- name: Set the zpool cachefile
+  command: "arch-chroot /mnt/ zpool set cachefile=/etc/zfs/zpool.cache zroot"
+
+- name: Add ZFS services for boot
+  command: "arch-chroot /mnt/ {{ item }}"
+  with_items:
+    - systemctl enable zfs.target
+    - systemctl enable zfs-import-cache
+    - systemctl enable zfs-mount
+    - systemctl enable zfs-import.target
+
+#- command: "arch-chroot /mnt/ zgenhostid $(hostid)"
+- name: Copy the zpool.cache file from archiso to /mnt/etc/zfs/zpool.cache
+  command: "cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache"

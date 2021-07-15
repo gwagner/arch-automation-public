@@ -1,0 +1,33 @@
+---
+- name: Create dotfiles code repo file
+  ansible.builtin.file:
+    path: /home/gwagner/code/github.com/gwagner/dwm
+    state: directory
+    recurse: yes
+    owner: gwagner
+    group: gwagner
+
+- name: Checkout gwagner dotfiles
+  ansible.builtin.git:
+    repo: https://github.com/gwagner/dwm.git
+    dest: /home/gwagner/code/github.com/gwagner/dwm
+    force: yes
+  become: yes
+  become_user: gwagner
+
+- name: Compile and install dwm
+  ansible.builtin.command: /bin/bash -c "cd /home/gwagner/code/github.com/gwagner/dwm/ && /bin/bash build.sh"
+
+- name: Install dwm supporting packages
+  aur: 
+    use: yay
+    name: 
+      - dunst
+      - nerd-fonts-complete
+      - ttf-font-awesome
+      - nitrogen
+      - picom
+      - polybar-dwm-module
+      - rofi
+  become: yes
+  become_user: aur_builder

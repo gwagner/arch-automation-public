@@ -1,0 +1,16 @@
+---
+
+- name: Insert en_US.UTF-8 UTF-8
+  lineinfile:
+    path: /mnt/etc/locale.gen
+    line: 'en_US.UTF-8 UTF-8'
+    insertbefore: EOF
+
+- name: Generate the locale
+  command: arch-chroot /mnt/ locale-gen
+
+- name: Set LANG=en_US.UTF-8 in /etc/locale.conf
+  copy:
+      dest: "/mnt/etc/locale.conf"
+      content: |
+        LANG=en_US.UTF-8

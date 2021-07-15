@@ -1,0 +1,17 @@
+---
+- name: Enable SSHD server
+  command: arch-chroot /mnt/ systemctl enable sshd
+
+- name: Create .ssh dir for the root user
+  ansible.builtin.file:
+    path: /mnt/root/.ssh
+    state: directory
+    mode: "0700"
+    recurse: True
+
+- name: Add the hosts pub key to the authorized_keys folder for root
+  ansible.builtin.copy:
+    src: /root/.ssh/authorized_keys
+    dest: /mnt/root/.ssh/authorized_keys
+    mode: "0600"
+    remote_src: yes

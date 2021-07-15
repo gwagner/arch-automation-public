@@ -1,0 +1,94 @@
+---
+- name: Remove existing hostkeys
+  known_hosts:
+    path: /home/{{ lookup('env', 'USER') }}/.ssh/known_hosts
+    name: "{{ansible_host}}"
+    state: absent
+  delegate_to: localhost
+  become: no
+
+# Listing VMs
+- name: List all registered VMs
+  community.libvirt.virt:
+    command: list_vms
+  register: all_vms
+  delegate_to: localhost
+  become: no
+
+- name: Get status of archlinux VM
+  community.libvirt.virt:
+    command: status
+    name: archlinux
+  register: archlinux_status
+  when: '"archlinux" in all_vms.list_vms'
+  delegate_to: localhost
+  become: no
+
+- name: Terminate archlinux VM
+  community.libvirt.virt:
+    command: destroy
+    name: archlinux
+  when: '"archlinux" in all_vms.list_vms and archlinux_status.status != "shutdown"'
+  delegate_to: localhost
+  become: no
+
+- name: Get shutdown status of archlinux VM
+  community.libvirt.virt:
+    command: status
+    name: archlinux
+  register: archlinux_shutdown_status
+  when: '"archlinux" in all_vms.list_vms'
+  delegate_to: localhost
+  become: no
+  until: 'archlinux_shutdown_status.status == "shutdown"'
+  retries: 10
+  delay: 2
+
+# Destroy the Arch Linux vm
+- name: Undefine old archlinux vm
+  community.libvirt.virt:
+    command: undefine
+    name: archlinux
+  when: '"archlinux" in all_vms.list_vms'
+  delegate_to: localhost
+  become: no
+
+- name: Delete old disk image
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /tmp/archlinux-1.qcow2
+    - /tmp/archlinux-2.qcow2
+  delegate_to: localhost
+  become: no
+
+- name: Create disk image
+  command: qemu-img create -f qcow2 {{ item }} 20G
+  with_items:
+    - /tmp/archlinux-1.qcow2
+    - /tmp/archlinux-2.qcow2
+  delegate_to: localhost
+  become: no
+
+# Create the Arch Linux vm
+- name: Define new archlinux vm
+  community.libvirt.virt:
+    command: define
+    xml: "{{ lookup('file', 'arch.xml') }}"
+  delegate_to: localhost
+  become: no
+
+# Create the Arch Linux vm
+- name: Start archlinux vm
+  community.libvirt.virt:
+    command: start
+    name: archlinux
+  delegate_to: localhost
+  become: no
+
+- name: Wait for VM to start
+  wait_for_connection:
+    delay: 10
+    timeout: 300
+    connect_timeout: 1
