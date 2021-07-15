@@ -1,5 +1,6 @@
 ---
 - include: users_and_groups.yaml
+- include: system-config.yaml
 - include: packages.yaml
 - include: zfs.yaml
 

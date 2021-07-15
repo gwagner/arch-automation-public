@@ -1,0 +1,76 @@
+---
+- name: Does system-config repo exist
+  ansible.builtin.stat:
+    path: /opt/system-config
+  register: sys_config_automation_exists
+
+- name: Create system-config code repo file
+  ansible.builtin.file:
+    path: /opt/system-config
+    state: directory
+    recurse: yes
+    owner: gwagner
+    group: gwagner
+  when: not sys_config_automation_exists.stat.exists
+
+- name: Checkout system-config dotfiles
+  ansible.builtin.git:
+    repo: https://github.com/gwagner/arch-system-config.git
+    dest: /opt/system-config
+    force: yes
+  when: not sys_config_automation_exists.stat.exists
+
+- name: Update system-config dotfiles repo
+  command: git -C /opt/system-config/ pull
+  when: sys_config_automation_exists.stat.exists
+
+- name: Stat /etc/pacman.conf
+  ansible.builtin.stat:
+    path: /etc/pacman.conf
+  register: pacman_conf_exists
+
+- name: Remove /etc/pacman.conf to make room for the symlink
+  ansible.builtin.file:
+    path: /etc/pacman.conf
+    state: absent
+  when: pacman_conf_exists.stat.exists or (pacman_conf_exists.stat.islnk is defined and not pacman_conf_exists.stat.islnk)
+
+- name: Manually setup a link /opt/system-config/etc/pacman.conf -> /etc/pacman.conf
+  ansible.builtin.file:
+    src: /opt/system-config/etc/pacman.conf
+    dest: /etc/pacman.conf
+    owner: root
+    group: root 
+    state: hard
+
+- name: Manually setup a link /opt/system-config/etc/modules-load.d/v4l2loopback.conf -> /etc/modules-load.d/v4l2loopback.conf
+  ansible.builtin.file:
+    src: /opt/system-config/etc/modules-load.d/v4l2loopback.conf
+    dest: /etc/modules-load.d/v4l2loopback.conf
+    owner: root
+    group: root
+    state: hard
+
+- name: Manually setup a link /opt/system-config/etc/modprobe.d/v4l2loopback.conf -> /etc/modprobe.d/v4l2loopback.conf
+  ansible.builtin.file:
+    src: /opt/system-config/etc/modprobe.d/v4l2loopback.conf
+    dest: /etc/modprobe.d/v4l2loopback.conf
+    owner: root
+    group: root
+    state: hard
+
+- name: Manually setup a link /opt/system-config/etc/pulse/default.pa -> /etc/pulse/default.pa
+  ansible.builtin.file:
+    src: /opt/system-config/etc/pulse/default.pa
+    dest: /etc/pulse/default.pa
+    owner: root
+    group: root
+    state: hard
+
+# We dont actually run an install here, since these are all hardlinks
+#- name: Install system-config dotfiles
+#  ansible.builtin.command: /bin/bash /opt/system-config/install
+
+# After we symlink the new pacman.conf, we need to update pacman
+- name: Update Pacman
+  command: pacman -Sy
