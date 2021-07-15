@@ -1,19 +1,26 @@
 ---
-- name: Create dotfiles code repo file
+- name: Does arch-automation repo exist
+  ansible.builtin.stat:
+    path: /home/gwagner/code/github.com/gwagner/dwm
+  register: dwm_automation_exists
+
+- name: Create dwm code repo file
   ansible.builtin.file:
     path: /home/gwagner/code/github.com/gwagner/dwm
     state: directory
     recurse: yes
     owner: gwagner
     group: gwagner
+  when: not dwm_automation_exists.stat.exists
 
-- name: Checkout gwagner dotfiles
+- name: Checkout gwagner dwm
   ansible.builtin.git:
     repo: https://github.com/gwagner/dwm.git
     dest: /home/gwagner/code/github.com/gwagner/dwm
     force: yes
   become: yes
   become_user: gwagner
+  when: not dwm_automation_exists.stat.exists
 
 - name: Compile and install dwm
   ansible.builtin.command: /bin/bash -c "cd /home/gwagner/code/github.com/gwagner/dwm/ && /bin/bash build.sh"
@@ -30,4 +37,4 @@
       - polybar-dwm-module
       - rofi
   become: yes
-  become_user: aur_builder
+  become_user: gwagner

@@ -7,12 +7,12 @@
 - name: Install Yay
   command: "{{ item }}"
   with_items:
-    - rm -rf /home/aur_builder/yay
-    - mkdir /home/aur_builder/yay
-    - git clone https://aur.archlinux.org/yay.git  /home/aur_builder/yay
-    - /bin/bash -c "cd /home/aur_builder/yay && makepkg -si --noconfirm"
+    - rm -rf /home/gwagner/yay
+    - mkdir /home/gwagner/yay
+    - git clone https://aur.archlinux.org/yay.git  /home/gwagner/yay
+    - /bin/bash -c "cd /home/gwagner/yay && makepkg -si --noconfirm"
   become: yes
-  become_user: aur_builder
+  become_user: gwagner
   when: not yay_status.stat.exists
 
 - name: Install system packages
@@ -28,6 +28,7 @@
       - cronie
       - dnsmasq
       - firefox
+      - flatpak
       - iotop
       - libvirt
       - man
@@ -52,4 +53,4 @@
       - zfsnap
       - zsh
   become: yes
-  become_user: aur_builder
+  become_user: gwagner

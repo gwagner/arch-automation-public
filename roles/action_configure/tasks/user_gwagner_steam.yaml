@@ -10,4 +10,4 @@
       - libcurl-compat
       - steam
   become: yes
-  become_user: aur_builder
+  become_user: gwagner

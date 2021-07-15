@@ -1,3 +1,8 @@
+- name: Is ZFS already installed on the system
+  command: "which zpool"
+  register: zpool_exists
+  ignore_errors: true
+
 - name: Copy ZFS Kernel Module to Pacman Cache
   ansible.builtin.copy:
     src: files/zfs-dkms-2.0.5-1-x86_64.pkg.tar.zst
@@ -5,6 +10,7 @@
     owner: root
     group: root
     mode: '0644'
+  when: zpool_exists.failed
 
 - name: Copy ZFS-Utils to Pacman Cache
   ansible.builtin.copy:
@@ -13,10 +19,12 @@
     owner: root
     group: root
     mode: '0644'
+  when: zpool_exists.failed
   
-- name: Install package bar from file
+- name: Install the zfs-dkms and zfs-utils package from disk
   community.general.pacman:
     name: 
       - /var/cache/pacman/pkg/zfs-dkms-2.0.5-1-x86_64.pkg.tar.zst
       - /var/cache/pacman/pkg/zfs-utils-2.0.5-1-x86_64.pkg.tar.zst
     state: latest
+  when: zpool_exists.failed

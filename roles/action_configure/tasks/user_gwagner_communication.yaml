@@ -6,7 +6,7 @@
       - discord
       - teams
   become: yes
-  become_user: aur_builder
+  become_user: gwagner
 
 - name: Install the Slack
   community.general.flatpak:

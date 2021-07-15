@@ -1,4 +1,9 @@
 ---
+- name: Does arch-automation repo exist
+  ansible.builtin.stat:
+    path: /home/gwagner/code/github.com/gwagner/arch-automation
+  register: arch_automation_exists
+
 - name: Checkout gwagner dotfiles
   ansible.builtin.git:
     repo: https://github.com/gwagner/arch-automation.git
@@ -6,3 +11,4 @@
     force: yes
   become: yes
   become_user: gwagner
+  when: not arch_automation_exists.stat.exists

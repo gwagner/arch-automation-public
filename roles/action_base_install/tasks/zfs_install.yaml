@@ -23,9 +23,24 @@
     - 'Server = https://mirror.biocrafting.net/archlinux/archzfs/$repo/$arch'
   when: zpool_exists.failed
 
-- name: Install the ZFS-DKMS package
-  command: "arch-chroot /mnt/ pacman --noconfirm -Sy zfs-dkms zfs-utils"
-  when: zpool_exists.failed
+- name: Copy ZFS Kernel Module to Pacman Cache
+  ansible.builtin.copy:
+    src: ../../action_configure/files/zfs-dkms-2.0.5-1-x86_64.pkg.tar.zst
+    dest: /mnt/var/cache/pacman/pkg/zfs-dkms-2.0.5-1-x86_64.pkg.tar.zst
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy ZFS-Utils to Pacman Cache
+  ansible.builtin.copy:
+    src: ../../action_configure/files/zfs-utils-2.0.5-1-x86_64.pkg.tar.zst
+    dest: /mnt/var/cache/pacman/pkg/zfs-utils-2.0.5-1-x86_64.pkg.tar.zst
+    owner: root
+    group: root
+    mode: '0644'
+  
+- name: Install the zfs-dkms and zfs-utils package from disk
+  command: "arch-chroot /mnt/ pacman -U --noconfirm /var/cache/pacman/pkg/zfs-dkms-2.0.5-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/zfs-utils-2.0.5-1-x86_64.pkg.tar.zst"
 
 - name: "Replace the hooks in mkinitcpio.conf with ZFS hooks"
   lineinfile:

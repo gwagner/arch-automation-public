@@ -4,7 +4,7 @@
   hosts: all
   gather_facts: false
   pre_tasks:
-    - include: vault/include_vars.yaml
+    - include_vars: vault/passwords.yaml
   roles:
     - role: action_create_arch_iso
       when: validation == True
@@ -19,7 +19,7 @@
 - name: Arch Install
   hosts: all
   pre_tasks:
-    - include: vault/include_vars.yaml
+    - include_vars: vault/passwords.yaml
   roles:  
     - role: action_base_install
 
@@ -27,6 +27,6 @@
 - name: Arch Configure
   hosts: all
   pre_tasks:
-    - include: vault/include_vars.yaml
+    - include_vars: vault/passwords.yaml
   roles:  
     - role: action_configure

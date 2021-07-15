@@ -1,4 +1,9 @@
 ---
+- name: Does arch-automation repo exist
+  ansible.builtin.stat:
+    path: /home/gwagner/code/github.com/gwagner/dotfiles
+  register: dotfiles_automation_exists
+
 - name: Create dotfiles code repo file
   ansible.builtin.file:
     path: /home/gwagner/code/github.com/gwagner/dotfiles
@@ -6,6 +11,7 @@
     recurse: yes
     owner: gwagner
     group: gwagner
+  when: not dotfiles_automation_exists.stat.exists
 
 - name: Checkout gwagner dotfiles
   ansible.builtin.git:
@@ -14,6 +20,7 @@
     force: yes
   become: yes
   become_user: gwagner
+  when: not dotfiles_automation_exists.stat.exists
 
 - name: Remove .bashrc file
   ansible.builtin.file:
@@ -23,12 +30,14 @@
 - name: Create gwagner ~/.local/ folder
   ansible.builtin.file:
     path: /home/gwagner/.local/
+    state: directory
     owner: gwagner
     group: gwagner
 
 - name: Create gwagner ~/.local/share/ folder
   ansible.builtin.file:
     path: /home/gwagner/.local/share/
+    state: directory
     owner: gwagner
     group: gwagner
 
@@ -39,7 +48,6 @@
     mode: '0740'
   become: yes
   become_user: gwagner
-
 
 - name: Install oh-my-zsh
   ansible.builtin.command: /bin/bash /tmp/oh-my-zsh-install.sh
@@ -90,19 +98,47 @@
     state: link
     force: true
 
+- name: Stat /etc/pacman.conf
+  ansible.builtin.stat:
+    path: /etc/pacman.conf
+  register: pacman_conf_exists
+
+- name: Remove /etc/pacman.conf to make room for the symlink
+  ansible.builtin.file:
+    path: /etc/pacman.conf
+    state: absent
+  when: pacman_conf_exists.stat.exists or (pacman_conf_exists.stat.islnk is defined and not pacman_conf_exists.stat.islnk)
+
 - name: Manually setup a link /home/gwagner/code/github.com/gwagner/dotfiles/etc/pacman.conf -> /etc/pacman.conf
   ansible.builtin.file:
     src: /home/gwagner/code/github.com/gwagner/dotfiles/etc/pacman.conf
     dest: /etc/pacman.conf
     owner: root
-    group: root
+    group: root 
     state: link
     force: true
+
+- name: Stat /home/gwagner/.config/
+  ansible.builtin.stat:
+    path: /home/gwagner/.config/
+  register: dotconfig_conf_exists
+
+- debug: var=dotconfig_conf_exists
+
+- name: Remove /home/gwagner/.config/ to make room for the symlink
+  ansible.builtin.file:
+    path: /home/gwagner/.config
+    state: absent
+  when: dotconfig_conf_exists.stat.exists and dotconfig_conf_exists.stat.islnk is defined and not dotconfig_conf_exists.stat.islnk
 
 - name: Install gwagner dotfiles
   ansible.builtin.command: /bin/bash /home/gwagner/code/github.com/gwagner/dotfiles/install
   become: yes
   become_user: gwagner
+
+# After we symlink the new pacman.conf, we need to update pacman
+- name: Update Pacman
+  command: pacman -Sy
 
 - name: Manually setup perms for /home/gwagner/.config/polybar-scripts/polybar-scripts/updates-pacman/updates-pacman.sh
   ansible.builtin.file:

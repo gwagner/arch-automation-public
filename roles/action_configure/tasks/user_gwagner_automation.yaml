@@ -7,5 +7,10 @@
       - ansible
       - archiso
       - sshpass
+      - python-pip
   become: yes
-  become_user: aur_builder
+  become_user: gwagner
+
+- name: Install PyVmomi python package
+  pip:
+    name: PyVmomi

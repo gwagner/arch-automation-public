@@ -1,9 +1,4 @@
 ---
-- name: Remove aur_builder from NOPASSWD sudo
-  ansible.builtin.file:
-    path: /etc/sudoers.d/11-install-aur_builder
-    state: absent
-
 - name: Remove gwagner from NOPASSWD sudo
   ansible.builtin.file:
     path: /etc/sudoers.d/99-gwagner
