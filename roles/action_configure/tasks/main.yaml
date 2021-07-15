@@ -1,6 +1,7 @@
 ---
 - include: users_and_groups.yaml
 - include: packages.yaml
+- include: zfs.yaml
 
 # These 2 should go in order
 - include: user_gwagner_dotfiles.yaml

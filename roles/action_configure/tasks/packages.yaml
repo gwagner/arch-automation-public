@@ -38,9 +38,6 @@
       - qemu-headless
       - ranger
       - solaar
-#      - libcurl-compat
-#      - steam
-#      - slack-desktop
       - sudo
       - unzip
       - upower

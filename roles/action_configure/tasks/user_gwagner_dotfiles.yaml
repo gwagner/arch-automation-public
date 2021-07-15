@@ -20,11 +20,15 @@
     path: /home/gwagner/.bashrc
     state: absent
 
+- name: Create gwagner ~/.local/ folder
+  ansible.builtin.file:
+    path: /home/gwagner/.local/
+    owner: gwagner
+    group: gwagner
+
 - name: Create gwagner ~/.local/share/ folder
   ansible.builtin.file:
     path: /home/gwagner/.local/share/
-    state: directory
-    recurse: yes
     owner: gwagner
     group: gwagner
 
@@ -81,6 +85,15 @@
   ansible.builtin.file:
     src: /home/gwagner/code/github.com/gwagner/dotfiles/etc/pulse/default.pa
     dest: /etc/pulse/default.pa
+    owner: root
+    group: root
+    state: link
+    force: true
+
+- name: Manually setup a link /home/gwagner/code/github.com/gwagner/dotfiles/etc/pacman.conf -> /etc/pacman.conf
+  ansible.builtin.file:
+    src: /home/gwagner/code/github.com/gwagner/dotfiles/etc/pacman.conf
+    dest: /etc/pacman.conf
     owner: root
     group: root
     state: link

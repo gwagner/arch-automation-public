@@ -1,15 +1,4 @@
 ---
-- name: Uncomment line from /etc/pacman.conf for multilib
-  lineinfile:
-    dest: /etc/pacman.conf
-    regexp: "{{ item.r }}"
-    line: "{{ item.l }}"
-  loop:
-    - r: '^#\[multilib\]$'
-      l: '[multilib]'
-    - r: '^#Include = /etc/pacman.d/mirrorlist$'
-      l: 'Include = /etc/pacman.d/mirrorlist'
-
 - name: Run "pacman -Sy" to get the multilib db
   community.general.pacman:
     update_cache: yes
