@@ -3,3 +3,8 @@
   ansible.builtin.file:
     path: /etc/sudoers.d/99-gwagner
     state: absent
+
+- name: Set gwagner shell to ZSH
+  user:
+    name: gwagner
+    shell: /bin/zsh

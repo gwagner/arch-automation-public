@@ -1,6 +1,12 @@
 ---
+- ansible.builtin.fail: 
+    msg: "fs_type is not defined or is not zfs or btrfs"
+  when: fs_type is not defined or fs_type != "zfs" and fs_type != "btrfs"
+
 - name: Check the boot environment
-  script: "files/boot_type.sh"
+  script: 
+    cmd: "files/boot_type.sh"
+    executable: /bin/bash
   register: boot_environment
 
 - name: Swith UEFI to false if we are on a BIOS system
@@ -8,28 +14,30 @@
     uefi: false
   when: boot_environment.stdout | trim != "UEFI"
 
-# Install the ZFS repo and kernel module
-- include: zfs_archiso_install.yaml
+- name: Find fastest mirrors
+  command: reflector --country "United States" --protocol https --verbose --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
 
-- name: Check if zpool exists
-  command: zpool status
-  register: zpool_status
+# if there are still problems, this mirror can be used as a local proxy
+# Server = http://192.168.8.43:8080/$repo/os/$arch
 
-- include: zfs_archiso_zpool_destroy.yaml
-  when: destructive
-  
-- include: zfs_archiso_disks.yaml
-  when: '"{{ zpool_name }}" not in zpool_status.stdout'
+- include: zfs_archiso.yaml
+  when: fs_type == "zfs"
 
-- include: zfs_archiso_zpool_create.yaml
-  when: '"{{ zpool_name }}" not in zpool_status.stdout'
+- include: btrfs.yaml
+  when: fs_type == "btrfs"
 
 - include: base_install.yaml
 - include: generate_fstab.yaml
 - include: language.yaml
 - include: timezone.yaml
 - include: hostname.yaml
-- include: zfs_install.yaml
+
+- include: zfs/zfs_install.yaml
+  when: fs_type == "zfs"
+
+- include: btrfs/btrfs_install.yaml
+  when: fs_type == "btrfs"
+
 - include: bootloader.yaml
 - include: networking.yaml
 - include: ssh.yaml

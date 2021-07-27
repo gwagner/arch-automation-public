@@ -3,3 +3,4 @@ zpool_name: zroot
 zpool_exists: false
 skip_finalize: false
 uefi: true
+#swap_gbs: 64

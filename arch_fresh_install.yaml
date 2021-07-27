@@ -7,7 +7,7 @@
     - include_vars: vault/passwords.yaml
   roles:
     - role: action_create_arch_iso
-      when: validation == True
+      when: validation == True and create_image == True
 
     - role: action_create_vmware_test_vm
       when: validation == True and virtualization_type == "vmware" and recreate == True

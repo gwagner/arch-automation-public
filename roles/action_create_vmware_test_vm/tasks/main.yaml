@@ -18,20 +18,43 @@
   register: local_checksum
   delegate_to: localhost
   become: no
+  when: create_image == True
 
 - name: Get hash of remote iso
   command: ssh {{ vmware_user }}@{{ vmware_host }} "md5sum {{ vmware_iso_path }} | head -n1 | cut -d \" \" -f1"
   register: remote_checksum
   delegate_to: localhost
   become: no
+  when: create_image == True
 
 - name: Copy image to vmware
   command: scp /tmp/archlinux.iso {{ vmware_user }}@{{ vmware_host }}:{{ vmware_iso_path }}
   delegate_to: localhost
   become: no
-  when: local_checksum.stat.checksum != remote_checksum.stdout
+  when: create_image == True and local_checksum.stat.checksum != remote_checksum.stdout
 
-- name: Create a virtual machine on given ESXi hostname
+- name: Add vmware as a host
+  add_host:
+    hostname: "{{ vmware_host }}"
+    ansible_ssh_host: "{{ vmware_host }}"
+    ansible_user: "{{ vmware_user }}"
+    ansible_ssh_pass: "{{ vmware_password }}"
+    
+
+- name: Does an arch image exist on vmwre
+  command: ls {{ vmware_iso_path }}
+  delegate_to: "{{ vmware_host }}"
+  become: no
+  ignore_errors: True
+  register: vmware_arch_iso_exists
+
+- ansible.builtin.fail: 
+    msg: Arch ISO does not exist on vmware
+  delegate_to: localhost
+  become: no
+  when: vmware_arch_iso_exists.rc != 0
+
+- name: Create a virtual machine on vmware
   community.vmware.vmware_guest:
     validate_certs: false
     hostname: "{{ vmware_host }}"

@@ -1,2 +1,3 @@
 ---
 recreate: true
+create_image: true

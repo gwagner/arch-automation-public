@@ -1,0 +1,5 @@
+title           Arch Linux
+linux           vmlinuz-linux-lts
+initrd          amd-ucode.img
+initrd          initramfs-linux-lts.img
+options         root=LABEL=ROOT rootflags=subvol=@,defaults,rw,noatime,commit=120,compress=zstd,space_cache rootfstype=btrfs

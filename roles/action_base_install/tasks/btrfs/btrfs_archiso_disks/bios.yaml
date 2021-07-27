@@ -1,23 +1,26 @@
 ---
+- fail:
+    msg: BTRFS BIOS disk partitioning not configured
+
 - name: "[BIOS] Clear disks with wipefs"
   command: "wipefs -fa {{ item }}"
-  loop: "{{ zfs_disks }}"
+  loop: "{{ disks }}"
 
 - name: "[BIOS] Clear disks with sgdisk"
   command: "sgdisk -Z {{ item }}"
-  loop: "{{ zfs_disks }}"
+  loop: "{{ disks }}"
 
 - name: "[BIOS] Create MBR Partition"
   command: "sgdisk -n 1:0:+1MiB -t 1:ef02 -c 1:mbr {{ item }}"
-  loop: "{{ zfs_disks }}"
+  loop: "{{ disks }}"
 
 - name: "[BIOS] Create Boot Partition"
   command: "sgdisk -n 2:0:+1GiB -t 2:8300 -c 2:boot {{ item }}"
-  loop: "{{ zfs_disks }}"
+  loop: "{{ disks }}"
 
 - name: "[BIOS] Create Data Partition"
   command: "sgdisk -n 3:0:0 -t 3:bf00 -c 3:root {{ item }}"
-  loop: "{{ zfs_disks }}"
+  loop: "{{ disks }}"
 
 - name: "[BIOS] Format the Boot partition [ext4]"
   command: "mkfs.ext4 {{ item }}"

@@ -1,0 +1,15 @@
+# Install the ZFS repo and kernel module
+- include: zfs/zfs_archiso_install.yaml
+
+- name: Check if zpool exists
+  command: zpool status
+  register: zpool_status
+
+- include: zfs/zfs_archiso_zpool_destroy.yaml
+  when: destructive
+  
+- include: zfs/zfs_archiso_disks.yaml
+  when: '"{{ zpool_name }}" not in zpool_status.stdout'
+
+- include: zfs/zfs_archiso_zpool_create.yaml
+  when: '"{{ zpool_name }}" not in zpool_status.stdout'

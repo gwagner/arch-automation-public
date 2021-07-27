@@ -1,10 +1,14 @@
 ---
 
 - name: Generate fstab
-  ansible.builtin.script: files/generate_fstab.sh
+  ansible.builtin.script: 
+    cmd: files/generate_fstab.sh
+    executable: /bin/bash
+    
 
 - name: "Remove additional zroot entries from /etc/fstab"
   ansible.builtin.replace:
     path: /mnt/etc/fstab
     regexp: '^(zroot[^\n\r]+)$'
     replace: '# \1'
+  when: fs_type == "zfs"

@@ -1,2 +1,4 @@
 scripts/
 host_vars/localhost.yaml
+vault-password-file
+id_rsa

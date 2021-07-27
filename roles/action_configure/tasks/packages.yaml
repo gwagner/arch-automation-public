@@ -39,6 +39,7 @@
       - pulseaudio
       - qemu-headless
       - ranger
+      - reflector
       - solaar
       - sudo
       - unzip
@@ -46,12 +47,11 @@
       - vim
       - vulkan-radeon
       - virt-manager
-      - vscodium
+      - vscodium-bin
       - wget
       - xorg-server
       - xorg-xinit
       - xf86-video-amdgpu
-      - zfsnap
       - zsh
   become: yes
   become_user: gwagner

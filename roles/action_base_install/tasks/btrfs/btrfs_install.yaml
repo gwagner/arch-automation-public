@@ -1,0 +1,14 @@
+# - name: "Replace the hooks in mkinitcpio.conf with ZFS hooks"
+#   lineinfile:
+#     path: /mnt/etc/mkinitcpio.conf
+#     regexp: '^MODULES'
+#     line: MODULES=(btrfs)
+
+- name: "Replace the hooks in mkinitcpio.conf with BTRFS hooks"
+  lineinfile:
+    path: /mnt/etc/mkinitcpio.conf
+    regexp: '^HOOKS'
+    line: HOOKS=(base btrfs udev autodetect modconf block keyboard filesystems fsck)
+
+- name: Build the LTS kernel
+  command: "arch-chroot /mnt/ mkinitcpio -p linux-lts"

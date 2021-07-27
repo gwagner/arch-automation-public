@@ -1,4 +1,10 @@
 ---
+- name: Update pacman repos
+  command: "{{ item }}"
+  with_items:
+    - rm -rf /var/lib/pacman/sync/*
+    - pacman -Syy --noconfirm pacman
+
 - name: Is ZFS already installed on the system
   command: which zpool
   register: zpool_exists
@@ -8,13 +14,11 @@
   community.general.pacman:
     name: archlinux-keyring
     state: installed
-    update_cache: yes
   when: zpool_exists.failed
 
 - name: Add ZFS repository GPG keys
   command: "{{ item }}"
   with_items:
-    - pacman -Sy --noconfirm
     - pacman-key --init
     - sleep 5
     - pacman-key --populate archlinux

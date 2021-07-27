@@ -7,9 +7,22 @@
 
 - name: Umount ZFS
   command: zfs umount -a
+  when: fs_type == "zfs"
 
 - name: Zpool export
   command: zpool export zroot
+  when: fs_type == "zfs"
+
+- name: Umount BTRFS
+  command: "umount {{ item }}"
+  loop:
+    - /mnt/home
+    - /mnt/opt
+    - /mnt/tmp
+    - /mnt/.snapshots
+    - /mnt/var
+    - /mnt/
+  when: fs_type == "btrfs"
 
 - name: Reboot the machine
   reboot:
