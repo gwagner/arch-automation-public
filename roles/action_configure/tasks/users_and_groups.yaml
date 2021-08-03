@@ -21,7 +21,7 @@
   user:
     name: gwagner
     create_home: yes
-    shell: /bin/zsh
+    shell: /bin/bash
     password: "{{ gwagner_user_password }}"
     groups: 
       - wheel
@@ -70,3 +70,4 @@
   command: echo 1
   notify:
     - Remove gwagner from NOPASSWD sudo
+    - Set gwagner shell to ZSH

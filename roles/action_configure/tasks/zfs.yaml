@@ -28,3 +28,47 @@
       - /var/cache/pacman/pkg/zfs-utils-2.0.5-1-x86_64.pkg.tar.zst
     state: latest
   when: zpool_exists.failed
+
+- name: Install ZFS packages
+  aur: 
+    use: yay
+    name: 
+      - zfsnap
+  become: yes
+  become_user: gwagner
+
+- name: zfsnap snapshot zroot/data/home
+  ansible.builtin.cron:
+    name: "zfsnap zroot/data/home"
+    minute: "0"
+    hour: "*/4"
+    job: "zfsnap snapshot -rv -S -a 6w zroot/data/home"
+
+- name: zfsnap destroy zroot/data/home
+  ansible.builtin.cron:
+    name: "zfsnap destroy zroot/data/home"
+    minute: "0"
+    hour: "0"
+    job: "zfsnap destroy zroot/data/home"
+
+- name: zfsnap snapshot zroot/ROOT/default
+  ansible.builtin.cron:
+    name: "zfsnap zroot/ROOT/default"
+    minute: "15"
+    hour: "*/4"
+    job: "zfsnap snapshot -rv -S -a 6w zroot/ROOT/default"
+
+- name: zfsnap destroy zroot/ROOT/default
+  ansible.builtin.cron:
+    name: "zfsnap destroy zroot/ROOT/default"
+    minute: "0"
+    hour: "0"
+    job: "zfsnap destroy zroot/ROOT/default"
+
+- name: zpool scrub zroot
+  ansible.builtin.cron:
+    name: "zpool scrub zroot"
+    minute: "0"
+    hour: "0"
+    day: "1,15"
+    job: "zpool scrub zroot"

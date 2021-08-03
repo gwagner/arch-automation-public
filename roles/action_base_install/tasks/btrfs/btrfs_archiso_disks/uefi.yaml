@@ -1,0 +1,49 @@
+---
+- name: "[UEFI] Check Swap Status"
+  command: cat /proc/swaps
+  register: swap_status
+
+- name: "[UEFI] Disable Swap"
+  command: "swapoff {{ swap_partitions[0] }}"
+  when: swap_partitions[0] in swap_status.stdout
+
+- name: "[UEFI] Clear disks with wipefs"
+  command: "wipefs -fa {{ item }}"
+  loop: "{{ disks }}"
+
+- name: "[UEFI] Clear disks with sgdisk"
+  command: "sgdisk -Z {{ item }}"
+  loop: "{{ disks }}"
+
+- name: "[UEFI] Sleep after zapping disks"
+  command: sleep 5
+
+- name: "[UEFI] Load the new partition table"
+  command: "partprobe {{ item }}"
+  loop: "{{ disks }}"
+
+- name: "[UEFI] Create Boot Partition"
+  command: "sgdisk -n 1:0:+1GiB -t 1:ef00 -c 1:boot {{ item }}"
+  loop: "{{ disks }}"
+
+- name: "[UEFI] Create Swap Partition"
+  command: "sgdisk -n 2:0:+{{ swap_gbs }}GiB -t 2:8200 -c 2:boot {{ item }}"
+  loop: "{{ disks }}"
+
+- name: "[UEFI] Create Data Partition"
+  command: "sgdisk -n 3:0:0 -t 3:8300 -c 3:root {{ item }}"
+  loop: "{{ disks }}"
+
+- name: "[UEFI] Format the Boot partition [FAT32]"
+  command: "mkfs.fat -F32 {{ item }}"
+  loop: "{{ boot_partitions }}"
+
+- name: "[UEFI] Format the Swap partition"
+  command: "mkswap {{ item }}"
+  loop: "{{ swap_partitions }}"
+
+- name: "[UEFI] Turn Swap On"
+  command: "swapon {{ swap_partitions[0] }}"
+
+- name: "[UEFI] Format the BTRFS Data partition"
+  command: "mkfs.btrfs -m raid1 -d raid1 -f {{ btrfs_partitions | join(' ') }}"

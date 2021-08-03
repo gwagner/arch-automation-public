@@ -11,7 +11,20 @@
     state: directory
     recurse: True
 
-- name: Copy archlinux bootloader config file
+- name: "[ZFS] Copy archlinux bootloader config file"
   ansible.builtin.copy:
-    src: "{{ role_path }}/files/archlinux.conf"
+    src: "{{ role_path }}/files/archlinux-zfs.conf"
     dest: /mnt/boot/loader/entries/archlinux.conf
+  when: fs_type == "zfs"
+
+- name: "[BTRFS] Add the archlinux systemd boot template"
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/archlinux-btrfs.j2"
+    dest: /mnt/boot/loader/entries/archlinux.conf
+  when: fs_type == "btrfs"
+
+# - name: "[BTRFS] Copy archlinux bootloader config file"
+#   ansible.builtin.copy:
+#     src: "{{ role_path }}/files/archlinux-btrfs.conf"
+#     dest: /mnt/boot/loader/entries/archlinux.conf
+#   when: fs_type == "btrfs"

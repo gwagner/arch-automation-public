@@ -1,0 +1,32 @@
+---
+- include: btrfs_archiso_disks/uefi.yaml
+  when: uefi
+
+- include: btrfs_archiso_disks/bios.yaml
+  when: not uefi
+
+- name: "Mount the btrfs partition"
+  command: mount {{ btrfs_partitions[0] }} /mnt/
+
+- name: Create the subvolumes in btrfs
+  command: "{{ item }}"
+  loop:
+    - btrfs su cr /mnt/@
+    - btrfs su cr /mnt/@home
+    - btrfs su cr /mnt/@var
+    - btrfs su cr /mnt/@opt
+    - btrfs su cr /mnt/@tmp
+    - umount /mnt
+    - sleep 5
+    - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@ {{ btrfs_partitions[0] }} /mnt
+    - mkdir /mnt/boot
+    - mkdir /mnt/home
+    - mkdir /mnt/var
+    - mkdir /mnt/opt
+    - mkdir /mnt/tmp
+    - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@home {{ btrfs_partitions[0] }} /mnt/home
+    - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@opt {{ btrfs_partitions[0] }} /mnt/opt
+    - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@tmp {{ btrfs_partitions[0] }} /mnt/tmp
+    - mount -o subvol=@var {{ btrfs_partitions[0] }} /mnt/var
+    - mount {{ boot_partitions[0] }} /mnt/boot
+    - btrfs filesystem label /mnt ROOT

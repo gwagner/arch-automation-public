@@ -1,8 +1,14 @@
 ---
 - include: users_and_groups.yaml
-- include: system-config.yaml
 - include: packages.yaml
+- include: system-config.yaml
+
+# Enable FS Specific resiliency
 - include: zfs.yaml
+  when: fs_type == "zfs"
+  
+- include: btrfs.yaml
+  when: fs_type == "btrfs"
 
 # These 2 should go in order
 - include: user_gwagner_dotfiles.yaml

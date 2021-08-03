@@ -4,14 +4,27 @@ destructive: false
 ansible_user: root
 ansible_ssh_pipelining: True
 ansible_python_interpreter: /usr/bin/python3
-ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-zfs_disks:
+ansible_ssh_extra_args: '-o StrictHostKeyChecking=no -o ServerAliveInterval=30'
+fs_type: btrfs
+
+disks:
   - /dev/nvme0n1
   - /dev/nvme1n1
+
 boot_partitions:
   - /dev/nvme0n1p1
   - /dev/nvme1n1p1
+
+swap_partitions:
+  - /dev/nvme0n1p2
+  - /dev/nvme1n1p2
+
+swap_gbs: 64
+
+btrfs_partitions:
+  - /dev/nvme0n1p3
+  - /dev/nvme1n1p3
+
 zfs_disk_ids:
   - /dev/disk/by-id/nvme-Samsung_SSD_970_EVO_Plus_500GB_S58SNMFR103334L-part2
   - /dev/disk/by-id/nvme-Samsung_SSD_970_EVO_Plus_500GB_S58SNZFNC02995W-part2

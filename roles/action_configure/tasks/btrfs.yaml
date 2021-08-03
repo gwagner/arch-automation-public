@@ -1,0 +1,38 @@
+- name: Does /.snapshots exist
+  stat:
+    path:  /.snapshots
+  register: root_snapshots
+
+- name: Create snapper config for root
+  command: snapper -c root create-config /
+  when: not root_snapshots.stat.exists
+
+- name: Does /home/.snapshots exist
+  stat:
+    path:  /home/.snapshots
+  register: home_snapshots
+
+- name: Create snapper config for home
+  command: snapper -c home create-config /home
+  when: not home_snapshots.stat.exists
+
+- name: Copy /etc/snapper/configs/home
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/etc/snapper/configs/home"
+    dest: /etc/snapper/configs/home
+    owner: root
+    group: root 
+
+- name: Copy /etc/snapper/configs/root
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/etc/snapper/configs/root"
+    dest: /etc/snapper/configs/root
+    owner: root
+    group: root 
+
+- name: Copy /etc/conf.d/snapper
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/etc/conf.d/snapper"
+    dest: /etc/conf.d/snapper
+    owner: root
+    group: root 
