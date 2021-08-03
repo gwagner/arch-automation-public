@@ -11,6 +11,14 @@
   become: yes
   become_user: gwagner
 
+- name: Ansible galaxy install
+  command: ansible-galaxy install kewlfft.aur
+
+- name: Ansible galaxy install
+  command: ansible-galaxy install kewlfft.aur
+  become_user: gwagner
+  become: yes
+
 - name: Install PyVmomi python package
   pip:
     name: PyVmomi

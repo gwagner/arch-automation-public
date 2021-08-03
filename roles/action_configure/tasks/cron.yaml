@@ -1,1 +1,8 @@
 ---
+# Scared to run this, but i am going to leave it here just in case :)
+#- name: Run ansible automation nightly
+#  ansible.builtin.cron:
+#    name: "Configuration Automation"
+#    minute: "0"
+#    hour: "0"
+#    job: "cd /home/gwagner/code/github.com/gwagner/arch-automation && /usr/bin/ansible-playbook -i inventory.yaml -l gwagner-desktop.valewood.local arch_configure.yaml --vault-password-file /root/vault-password-file -e ansible_connection=local"
