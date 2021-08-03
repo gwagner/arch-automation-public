@@ -8,4 +8,4 @@ wsl docker build -t ansible:latest /root/arch-automation/
 wsl docker run -it --rm `
     -v ~/arch-automation/:/ansible `
     -w /ansible `
-    ansible:latest ansible-playbook -vvvv -i inventory.yaml -l test.valewood.lab -e create_image=false --vault-password-file /vault-password-file arch_configure.yaml
+    ansible:latest ansible-playbook -vvvv -f 10 -i inventory.yaml -l test-zfs.valewood.lab,test-btrfs.valewoo.lab --vault-password-file /vault-password-file arch_configure.yaml

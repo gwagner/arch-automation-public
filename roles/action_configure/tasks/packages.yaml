@@ -40,6 +40,8 @@
       - qemu-headless
       - ranger
       - reflector
+      - snapper
+      - snapper-gui-git
       - solaar
       - sudo
       - unzip
@@ -55,3 +57,10 @@
       - zsh
   become: yes
   become_user: gwagner
+
+- name: Remove Unused Packages
+  community.general.pacman:
+    name: 
+      - timeshift
+    state: absent
+    extra_args: --recursive

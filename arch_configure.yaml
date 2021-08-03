@@ -2,6 +2,7 @@
 - name: Arch Configure
   hosts: all
   become: yes
+  any_errors_fatal: true
   pre_tasks:
     - include_vars: vault/passwords.yaml
   roles:  

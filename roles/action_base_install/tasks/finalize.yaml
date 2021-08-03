@@ -1,6 +1,6 @@
 ---
 - name: change root user's password
-  command: arch-chroot /mnt/ /bin/bash -c 'echo "root:{{ ansible_ssh_pass }}" | chpasswd'
+  command: arch-chroot /mnt/ /bin/bash -c 'echo "root:root" | chpasswd'
 
 - name: Umount /mnt/boot
   command: umount /mnt/boot
@@ -19,7 +19,6 @@
     - /mnt/home
     - /mnt/opt
     - /mnt/tmp
-    - /mnt/.snapshots
     - /mnt/var
     - /mnt/
   when: fs_type == "btrfs"
@@ -31,7 +30,7 @@
 
 - name: Remove existing hostkeys
   known_hosts:
-    path: /home/{{ lookup('env', 'USER') }}/.ssh/known_hosts
+    path: "{{ lookup('env', 'HOME') }}/.ssh/known_hosts"
     name: "{{ansible_host}}"
     state: absent
   delegate_to: localhost
@@ -40,6 +39,6 @@
 - name: Wait for VM to start
   wait_for_connection:
     timeout: 10
-    connect_timeout: 1
+    connect_timeout: 10
   retries: 10
   delay: 10

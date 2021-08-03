@@ -4,14 +4,13 @@ destructive: false
 ansible_user: root
 ansible_ssh_pipelining: True
 ansible_python_interpreter: /usr/bin/python3
-ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+ansible_ssh_extra_args: '-o StrictHostKeyChecking=no -o ServerAliveInterval=30'
 fs_type: btrfs
 
 disks:
   - /dev/nvme0n1
   - /dev/nvme1n1
-  
+
 boot_partitions:
   - /dev/nvme0n1p1
   - /dev/nvme1n1p1

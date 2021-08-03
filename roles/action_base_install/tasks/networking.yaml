@@ -4,12 +4,39 @@
     state: directory
     recurse: True
 
+- name: Create /mnt/var/lib/iwd/ directory
+  ansible.builtin.file:
+    path: /mnt/var/lib/iwd/
+    state: directory
+    recurse: True
+
 - name: Set the hostname
   copy:
       dest: "/mnt/etc/iwd/main.conf"
       content: |
         [General]
         EnableNetworkConfiguration=true
+
+- name: Does wifi connect exist
+  stat:
+    path: /var/lib/iwd/6108_Data_U.psk
+  register: wifi_exists
+
+- name: Copy wifi PSK to machine
+  command: cp /var/lib/iwd/6108_Data_U.psk /mnt/var/lib/iwd/6108_Data_U.psk
+  when: wifi_exists.stat.exists
+
+- name: Add IP settings to wlan0
+  blockinfile:
+    dest: /mnt/var/lib/iwd/6108_Data_U.psk
+    block: |
+      [IPv4]
+      Address={{ ansible_host }}
+      Netmask=255.255.255.0
+      Gateway=192.168.2.1
+      Broadcast=192.168.2.255
+      DNS=192.168.2.1
+  when: wifi_exists.stat.exists
 
 - name: Add networking services for boot
   command: "arch-chroot /mnt/ {{ item }}"
@@ -19,3 +46,4 @@
     - systemctl enable systemd-resolved
     - systemctl enable systemd-networkd
     - systemctl enable dhcpcd
+

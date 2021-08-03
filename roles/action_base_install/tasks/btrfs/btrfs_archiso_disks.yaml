@@ -16,7 +16,6 @@
     - btrfs su cr /mnt/@var
     - btrfs su cr /mnt/@opt
     - btrfs su cr /mnt/@tmp
-    - btrfs su cr /mnt/@.snapshots
     - umount /mnt
     - sleep 5
     - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@ {{ btrfs_partitions[0] }} /mnt
@@ -25,11 +24,9 @@
     - mkdir /mnt/var
     - mkdir /mnt/opt
     - mkdir /mnt/tmp
-    - mkdir /mnt/.snapshots
     - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@home {{ btrfs_partitions[0] }} /mnt/home
     - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@opt {{ btrfs_partitions[0] }} /mnt/opt
     - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@tmp {{ btrfs_partitions[0] }} /mnt/tmp
-    - mount -o noatime,commit=120,compress=zstd,space_cache,subvol=@.snapshots {{ btrfs_partitions[0] }} /mnt/.snapshots
     - mount -o subvol=@var {{ btrfs_partitions[0] }} /mnt/var
     - mount {{ boot_partitions[0] }} /mnt/boot
     - btrfs filesystem label /mnt ROOT

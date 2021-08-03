@@ -3,6 +3,7 @@
 - name: Arch Validation Setup
   hosts: all
   gather_facts: false
+  any_errors_fatal: true
   pre_tasks:
     - include_vars: vault/passwords.yaml
   roles:
@@ -18,6 +19,7 @@
 # Archiso install from bare metal to VM
 - name: Arch Install
   hosts: all
+  any_errors_fatal: true
   pre_tasks:
     - include_vars: vault/passwords.yaml
   roles:  
@@ -26,6 +28,7 @@
 # Configure installation of Arch Linux after bare-metal install and/or incremental updates
 - name: Arch Configure
   hosts: all
+  any_errors_fatal: true
   pre_tasks:
     - include_vars: vault/passwords.yaml
   roles:  
