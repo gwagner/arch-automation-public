@@ -1,4 +1,10 @@
 ---
+- name: Ensure cron starts with the system
+  command: "{{ item }}"
+  with_items:
+    - systemctl enable cronie.service
+    - systemctl start cronie.service
+
 # Scared to run this, but i am going to leave it here just in case :)
 #- name: Run ansible automation nightly
 #  ansible.builtin.cron:
