@@ -2,10 +2,10 @@
 all:
   hosts:
     test-zfs.valewood.lab:
-      ansible_host: 192.168.2.174
+      ansible_host: 192.168.18.51
 
     test-btrfs.valewood.lab:
-      ansible_host: 192.168.2.176
+      ansible_host: 192.168.18.50
       
     gwagner-desktop.valewood.local:
       ansible_host: 192.168.2.146

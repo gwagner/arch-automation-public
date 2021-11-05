@@ -1,0 +1,19 @@
+- name: Install Virtualization Packages
+  kewlfft.aur.aur: 
+    use: yay
+    name: 
+      - libvirt-glib
+      - libvirt-python
+      - libvirt
+      - qemu-headless
+      - virt-manager
+  become: yes
+  become_user: gwagner
+
+- name: Remove Unused Virtualization Packages
+  community.general.pacman:
+    name: 
+      - virtualbox
+      - virtualbox-host-dkms
+    state: absent
+    extra_args: --recursive

@@ -10,7 +10,7 @@ ansible_ssh_pipelining: True
 ansible_python_interpreter: /usr/bin/python3
 ansible_ssh_extra_args: '-o StrictHostKeyChecking=no -o ServerAliveInterval=30'
 
-vmware_ip_address: 192.168.2.174
+vmware_ip_address: 192.168.18.51
 vmware_mac_address: A4:F7:32:A9:D1:C7
 vmware_name: arch-linux-test-zfs
 

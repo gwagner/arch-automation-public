@@ -4,7 +4,7 @@
     update_cache: yes
 
 - name: Install steam and supporting packages
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       - libcurl-compat

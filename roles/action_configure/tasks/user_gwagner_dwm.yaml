@@ -26,14 +26,14 @@
   ansible.builtin.command: /bin/bash -c "cd /home/gwagner/code/github.com/gwagner/dwm/ && /bin/bash build.sh"
 
 - name: Install dwm supporting packages
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       - dunst
       - nerd-fonts-complete
       - ttf-font-awesome
       - nitrogen
-      - picom
+      - picom-rounded-corners
       - polybar-dwm-module
       - rofi
   become: yes

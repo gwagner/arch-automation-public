@@ -1,0 +1,14 @@
+- name: Install qtile packages
+  kewlfft.aur.aur: 
+    use: yay
+    name: 
+      - qtile
+      - dunst
+      - nerd-fonts-complete
+      - ttf-font-awesome
+      - nitrogen
+      - picom-rounded-corners
+      - polybar-dwm-module
+      - rofi
+  become: yes
+  become_user: gwagner

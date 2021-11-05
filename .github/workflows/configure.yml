@@ -1,0 +1,43 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Configure
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+    paths:
+      - 'roles/action_configure/**'
+      - 'arch_configure.yaml'
+      - 'inventory.yaml'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'roles/action_configure/**'
+      - 'arch_configure.yaml'
+      - 'inventory.yaml'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: [self-hosted]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker Image
+        run: docker build --build-arg VAULT_PASSWORD="${{ secrets.VAULT_PASSWORD }}" --build-arg ID_RSA="${{ secrets.ID_RSA }}" -t arch-automation-ansible:latest -f Dockerfile_Credentials .
+
+      - name: Run the test vmware build
+        run: |
+          docker run -t --rm \
+          -v ${GITHUB_WORKSPACE}:/ansible \
+          -w /ansible \
+          arch-automation-ansible:latest ansible-playbook -f 10 -i inventory.yaml -l test-btrfs.valewood.lab --vault-password-file /vault-password-file arch_configure.yaml

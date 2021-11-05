@@ -1,6 +1,6 @@
 ---
 - name: Install apps for communication
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       - discord

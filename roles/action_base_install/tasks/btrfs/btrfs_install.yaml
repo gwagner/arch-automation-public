@@ -8,6 +8,7 @@
   lineinfile:
     path: /mnt/etc/mkinitcpio.conf
     regexp: '^HOOKS'
+    #line: HOOKS=(base btrfs udev autodetect numlock modconf block keyboard filesystems fsck)
     line: HOOKS=(base btrfs udev autodetect modconf block keyboard filesystems fsck)
 
 - name: Build the LTS kernel

@@ -1,0 +1,31 @@
+---
+
+- name: Remove Unused Audio Packages
+  community.general.pacman:
+    name: 
+      - apulse
+      - alsa-firmware
+      - alsa-utils
+      - xf86-video-ati
+      - pulseaudio
+    state: absent
+    extra_args: --recursive 
+
+- name: Install audio packages
+  kewlfft.aur.aur: 
+    use: yay
+    name: 
+      - pipewire-media-session
+      - pipewire-pulse
+      - pipewire-alsa
+  become: yes
+  become_user: gwagner
+
+- name: Install additional audio packages [Needs to run second]
+  kewlfft.aur.aur: 
+    use: yay
+    name: 
+      - noisetorch
+      - pavucontrol
+  become: yes
+  become_user: gwagner

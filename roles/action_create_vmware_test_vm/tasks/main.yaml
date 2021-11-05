@@ -9,6 +9,7 @@
     state: absent
     force: True
   delegate_to: localhost
+  become: false
   throttle: 1
 
 - name: Get stats of local iso
@@ -84,7 +85,7 @@
       num_cpu_cores_per_socket: 8
       scsi: paravirtual
     networks:
-    - name: Desktop
+    - name: Basement-Server
       connect: yes
       mac: "{{ vmware_mac_address }}"
       ip: "{{ vmware_ip_address }}"

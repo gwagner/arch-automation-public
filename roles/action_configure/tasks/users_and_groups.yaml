@@ -44,6 +44,14 @@
     owner: gwagner
     group: gwagner
 
+- name: Copy RSA Key to /home/gwagner/.ssh/id_rsa
+  ansible.builtin.copy:
+    src: /id_rsa
+    dest: /home/gwagner/.ssh/id_rsa
+    owner: gwagner
+    group: gwagner
+    mode: '0400'
+
 - name: Add github rsa key to known hosts for gwagner
   lineinfile:
     path: /home/gwagner/.ssh/known_hosts

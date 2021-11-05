@@ -99,3 +99,28 @@
     owner: gwagner
     group: gwagner
     mode: '0766'
+
+# - name: Install Noisetorch service
+#   ansible.builtin.command: systemctl enable --user noisetorch.service
+#   become: yes
+#   become_user: gwagner
+
+# - name: Get my user id
+#   ansible.builtin.command: id -u gwagner
+#   register: myuid
+
+# - name: Stat XDG_RUNTIME_DIR
+#   stat:
+#     path: "/run/user/{{ myuid.stdout }}"
+#   register: xdg_rutime_stat
+
+# - name: Run a user service when XDG_RUNTIME_DIR is not set on remote login
+#   ansible.builtin.systemd:
+#     name: noisetorch.service
+#     enabled: yes
+#     scope: user
+#   environment:
+#     XDG_RUNTIME_DIR: "/run/user/{{ myuid.stdout }}"
+#   become: yes
+#   become_user: gwagner
+#   when: xdg_rutime_stat.stat.exists

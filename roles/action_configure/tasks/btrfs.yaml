@@ -36,3 +36,11 @@
     dest: /etc/conf.d/snapper
     owner: root
     group: root 
+
+- name: Run btrfs scrub process
+  ansible.builtin.cron:
+    name: "Configuration Automation"
+    minute: "15"
+    hour: "2"
+    day: "1,15"
+    job: "btrfs scrub start /"

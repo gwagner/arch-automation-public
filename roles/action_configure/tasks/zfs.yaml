@@ -30,7 +30,7 @@
   when: zpool_exists.failed
 
 - name: Install ZFS packages
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       - zfsnap

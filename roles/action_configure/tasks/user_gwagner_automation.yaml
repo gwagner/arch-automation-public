@@ -1,6 +1,6 @@
 ---
 - name: Install packages supporting automation
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       # All used for the automation to build out an automated Arch Install
@@ -12,13 +12,15 @@
   become_user: gwagner
 
 - name: Ansible galaxy install
-  command: ansible-galaxy install kewlfft.aur
+  command: ansible-galaxy collection install kewlfft.aur
 
 - name: Ansible galaxy install
-  command: ansible-galaxy install kewlfft.aur
+  command: ansible-galaxy collection install kewlfft.aur
   become_user: gwagner
   become: yes
 
 - name: Install PyVmomi python package
   pip:
-    name: PyVmomi
+    name: 
+      - PyVmomi
+      - pylint

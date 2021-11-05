@@ -12,3 +12,18 @@
 #    minute: "0"
 #    hour: "0"
 #    job: "cd /home/gwagner/code/github.com/gwagner/arch-automation && /usr/bin/ansible-playbook -i inventory.yaml -l gwagner-desktop.valewood.local arch_configure.yaml --vault-password-file /root/vault-password-file -e ansible_connection=local"
+
+- name: Run btrfs scrub process
+  ansible.builtin.cron:
+    name: "BTRFS Scrub"
+    minute: "15"
+    hour: "2"
+    day: 1,15
+    job: "btrfs scrub start /"
+  when: fs_type == "btrfs"
+
+- name: Update Pacman
+  ansible.builtin.cron:
+    name: "Pacman Update"
+    minute: "0"
+    job: "pacman -Sy"

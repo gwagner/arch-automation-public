@@ -16,7 +16,7 @@
   when: not yay_status.stat.exists
 
 - name: Install system packages
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       - alacritty
@@ -29,26 +29,24 @@
       - dnsmasq
       - firefox
       - flatpak
+      - go
       - iotop
-      - libvirt
+      - lshw
       - man
       - mpv
       - nfs-utils
-      - numlockx
       - polybar-dwm-module
-      - pulseaudio
-      - qemu-headless
       - ranger
       - reflector
       - snapper
       - snapper-gui-git
       - solaar
       - sudo
+      - tree
       - unzip
       - upower
       - vim
       - vulkan-radeon
-      - virt-manager
       - vscodium-bin
       - wget
       - xorg-server

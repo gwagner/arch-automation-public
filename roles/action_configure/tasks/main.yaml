@@ -1,6 +1,13 @@
 ---
+- name: Add squid proxy
+  lineinfile:
+    path: /etc/environment
+    line: http_proxy='http://192.168.18.40:3128/'
+    insertbefore: EOF
+
 - include: users_and_groups.yaml
 - include: packages.yaml
+- include: audio.yaml
 - include: system-config.yaml
 
 # Enable FS Specific resiliency
@@ -12,13 +19,15 @@
 
 # These 2 should go in order
 - include: user_gwagner_dotfiles.yaml
-- include: user_gwagner_dwm.yaml
+#- include: user_gwagner_dwm.yaml
+- include: user_gwagner_qtile.yaml
 
 # other packages used by the user: gwagner
 - include: user_gwagner_automation.yaml
 - include: user_gwagner_arch_automation.yaml
 - include: user_gwagner_communication.yaml
 - include: user_gwagner_steam.yaml
+- include: user_gwagner_virtualization.yaml
 - include: user_gwagner_video.yaml
 
 # Define all cron jobs

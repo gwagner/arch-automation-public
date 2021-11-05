@@ -1,6 +1,6 @@
 ---
 - name: Install apps for vidcap
-  aur: 
+  kewlfft.aur.aur: 
     use: yay
     name: 
       - v4l2loopback-dkms-git
