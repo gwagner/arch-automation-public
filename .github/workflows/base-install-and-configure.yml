@@ -43,3 +43,10 @@ jobs:
           -v ${GITHUB_WORKSPACE}:/ansible \
           -w /ansible \
           arch-automation-ansible:latest ansible-playbook -f 10 -i inventory.yaml -l test-btrfs.valewood.lab -e create_image=false --vault-password-file /vault-password-file arch_fresh_install.yaml
+          
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: gwagner/arch-automation
+          event-type: push-to-public
