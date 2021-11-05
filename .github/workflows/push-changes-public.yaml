@@ -1,0 +1,37 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Push Changes to Public Repo
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: [push-to-public]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  push:
+    # The type of runner that the job will run on
+    runs-on: [self-hosted]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: true
+
+      - name: Push Changes to Public Repo
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.REPO_ACCESS_TOKEN }}
+        run: |
+          mkdir ~/.ssh/
+          echo "${{ secrets.ID_RSA }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==" >> ~/.ssh/known_hosts
+
+          git fetch --unshallow origin
+          git config --global user.name 'Geoff Wagner'
+          git config --global user.email 'wageof@gmail.com'
+          git remote add public "git@github.com:gwagner/arch-automation-public.git"
+          git push --force -u public $GITHUB_REF
