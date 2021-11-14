@@ -8,12 +8,14 @@ on:
   push:
     branches: [ master ]
     paths:
+      - '.github/workflows/configure.yaml'
       - 'roles/action_configure/**'
       - 'arch_configure.yaml'
       - 'inventory.yaml'
   pull_request:
     branches: [ master ]
     paths:
+      - '.github/workflows/configure.yaml'
       - 'roles/action_configure/**'
       - 'arch_configure.yaml'
       - 'inventory.yaml'
@@ -32,6 +34,28 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+       - uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: all
+          custom_payload: |
+            {
+              text: `:runner: ${process.env.AS_REPO} | ${process.env.AS_WORKFLOW}`,
+              attachments: [{
+                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                "fields":[
+                    {
+                      "title":"Details",
+                      "value":`${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REF} by ${process.env.AS_AUTHOR}`,
+                      "short":false
+                    }
+                ]
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
+
       - name: Build Docker Image
         run: docker build --build-arg VAULT_PASSWORD="${{ secrets.VAULT_PASSWORD }}" --build-arg ID_RSA="${{ secrets.ID_RSA }}" -t arch-automation-ansible:latest -f Dockerfile_Credentials .
 
@@ -48,3 +72,11 @@ jobs:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           repository: gwagner/arch-automation
           event-type: push-to-public
+      
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
