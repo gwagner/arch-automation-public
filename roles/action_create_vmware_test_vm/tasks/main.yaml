@@ -80,9 +80,9 @@
       datastore: FreeNAS-iSCSI
     hardware:
       boot_firmware: efi
-      memory_mb: 16384
-      num_cpus: 16
-      num_cpu_cores_per_socket: 8
+      memory_mb: 8192
+      num_cpus: 8
+      num_cpu_cores_per_socket: 4
       scsi: paravirtual
     networks:
     - name: Basement-Server
