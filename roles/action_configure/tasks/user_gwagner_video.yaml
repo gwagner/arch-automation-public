@@ -5,6 +5,7 @@
     name: 
       - v4l2loopback-dkms-git
       - obs-studio
+      - obs-plugin-looking-glass
       - luajit
       - sndio
       - nvidia-utils

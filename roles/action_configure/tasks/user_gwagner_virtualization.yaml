@@ -6,6 +6,7 @@
       - libvirt-python
       - libvirt
       - qemu-headless
+      - synergy
       - virt-manager
   become: yes
   become_user: gwagner

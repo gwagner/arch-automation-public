@@ -30,6 +30,7 @@
       - firefox
       - flatpak
       - go
+      - hardinfo
       - iotop
       - lshw
       - man
@@ -42,7 +43,9 @@
       - snapper
       - snapper-gui-git
       - solaar
+      - speedtest-cli
       - sudo
+      - tcpdump
       - tree
       - unzip
       - upower
@@ -52,7 +55,9 @@
       - wget
       - xorg-server
       - xorg-xinit
+      - xorg-xsetroot
       - xf86-video-amdgpu
+      - zip
       - zsh
   become: yes
   become_user: gwagner
