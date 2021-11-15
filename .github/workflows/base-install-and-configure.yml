@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Base Install and Configure
+name: "Test: Base Install and Configure"
 
 # Controls when the workflow will run
 on:
