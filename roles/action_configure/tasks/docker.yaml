@@ -1,0 +1,12 @@
+- name: Install docker packages
+  kewlfft.aur.aur: 
+    use: yay
+    name: 
+      - docker
+  become: yes
+  become_user: gwagner
+
+- name: Enable docker service
+  ansible.builtin.systemd:
+    name: docker.service
+    enabled: yes

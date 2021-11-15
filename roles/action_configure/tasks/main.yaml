@@ -8,6 +8,7 @@
 - include: users_and_groups.yaml
 - include: packages.yaml
 - include: audio.yaml
+- include: docker.yaml
 - include: system-config.yaml
 
 # Enable FS Specific resiliency
