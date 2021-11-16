@@ -15,13 +15,6 @@
   become_user: gwagner
   when: not yay_status.stat.exists
 
-- name: Remove System Packages
-  community.general.pacman:
-    name: 
-      - iptables
-    state: absent
-    extra_args: --recursive 
-
 - name: Install system packages
   kewlfft.aur.aur: 
     use: yay
