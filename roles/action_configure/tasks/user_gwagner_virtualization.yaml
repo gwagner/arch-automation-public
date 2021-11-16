@@ -2,10 +2,12 @@
   kewlfft.aur.aur: 
     use: yay
     name: 
+      - bind
       - libvirt-glib
       - libvirt-python
       - libvirt
       - qemu-headless
+      - samba
       - synergy
       - virt-manager
   become: yes

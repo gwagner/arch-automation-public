@@ -32,10 +32,12 @@
       - go
       - hardinfo
       - iotop
+      - iptables-nft
       - lshw
       - man
       - mpv
       - nfs-utils
+      - nmap
       - piper
       - polybar-dwm-module
       - ranger
