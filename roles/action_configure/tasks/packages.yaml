@@ -38,10 +38,12 @@
       - mpv
       - nfs-utils
       - nmap
+      - openrgb-bin
       - piper
       - polybar-dwm-module
       - ranger
       - reflector
+      - rsync
       - snapper
       - snapper-gui-git
       - solaar
