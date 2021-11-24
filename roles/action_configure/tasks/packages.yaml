@@ -25,6 +25,7 @@
       - bashtop
       - bc
       - bridge-utils
+      - chrony
       - cronie
       - dnsmasq
       - firefox
@@ -72,3 +73,9 @@
       - timeshift
     state: absent
     extra_args: --recursive
+
+- name: Enable systemd-timesyncd.service
+  ansible.builtin.systemd:
+    name: systemd-timesyncd.service
+    enabled: yes
+    state: started 
