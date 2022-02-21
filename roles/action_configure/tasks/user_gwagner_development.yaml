@@ -1,0 +1,13 @@
+---
+- name: Install Development Packages
+  kewlfft.aur.aur: 
+    use: yay
+    name:
+      - goland
+      - neovim
+      - nodejs
+      - npm
+      - vscodium-bin
+      - yarn
+  become: yes
+  become_user: gwagner 

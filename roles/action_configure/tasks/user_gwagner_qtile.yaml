@@ -4,11 +4,15 @@
     name: 
       - qtile
       - dunst
+      - betterlockscreen
+      - sddm
+      - multicolor-sddm-theme
+      - numix-icon-theme-git
       - nerd-fonts-complete
       - ttf-font-awesome
       - nitrogen
       - picom-rounded-corners
-      - polybar-dwm-module
       - rofi
+      - rofi-calc
   become: yes
   become_user: gwagner

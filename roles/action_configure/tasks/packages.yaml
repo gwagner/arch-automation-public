@@ -25,13 +25,19 @@
       - bashtop
       - bc
       - bridge-utils
+      - bluez
+      - bluez-libs
+      - bluez-plugins
+      - bluez-utils
       - chrony
       - cronie
       - dnsmasq
+      - expac
       - firefox
       - flatpak
       - go
       - hardinfo
+      - htop
       - iotop
       - iptables-nft
       - lshw
@@ -45,6 +51,7 @@
       - ranger
       - reflector
       - rsync
+      - screenkey
       - snapper
       - snapper-gui-git
       - solaar
@@ -54,14 +61,13 @@
       - tree
       - unzip
       - upower
-      - vim
       - vulkan-radeon
-      - vscodium-bin
       - wget
+      - xf86-video-amdgpu
       - xorg-server
       - xorg-xinit
       - xorg-xsetroot
-      - xf86-video-amdgpu
+      - xss-lock
       - zip
       - zsh
   become: yes
