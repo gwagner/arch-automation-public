@@ -6,7 +6,7 @@
   register: pacstrap_status
 
 - name: Update PGP keys
-  command: pacman -S archlinux-keyring
+  command: pacman -Sy archlinux-keyring
 
 - name: Run pacstrap for base system install
   command: pacstrap /mnt/ base linux-lts linux-lts-headers linux-firmware net-tools openssh amd-ucode iwd which python sudo git base-devel go bash btrfs-progs iptables-nft
