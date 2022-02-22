@@ -3,6 +3,7 @@
   kewlfft.aur.aur: 
     use: yay
     name:
+      - jdk11-openjdk
       - goland
       - neovim
       - nodejs
