@@ -9,6 +9,7 @@
       - looking-glass
       - qemu-headless
       - samba
+      - scream
       - swtpm
       - synergy
       - virt-manager
